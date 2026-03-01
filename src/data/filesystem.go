@@ -1,0 +1,41 @@
+package data
+
+import (
+    "os"
+    "path"
+    "path/filepath"
+)
+
+type FileEntry struct {
+    Path      string
+    Name      string
+    Extension string
+    ParentDir string
+    Entry     os.DirEntry
+}
+
+func NewFileEntry(dir string, entry os.DirEntry) FileEntry {
+    return FileEntry{
+        Path:      filepath.Join(dir, entry.Name()),
+        Name:      entry.Name(),
+        Extension: path.Ext(entry.Name()),
+        ParentDir: dir,
+        Entry:     entry,
+    }
+}
+
+func NewFileEntries(dir string, files []os.DirEntry) []FileEntry {
+    var fileEntries []FileEntry
+    for _, file := range files {
+        fileEntries = append(fileEntries, NewFileEntry(dir, file))
+    }
+    return fileEntries
+}
+
+func ReadFileContent(filePath string) (string, error) {
+    content, err := os.ReadFile(filePath)
+    if err != nil {
+        return "", err
+    }
+    return string(content), nil
+}
