@@ -1,22 +1,21 @@
 package main
 
 import (
+    "flag"
     "fmt"
     "os"
 
+    "ieris19.com/podman-updater/config"
     "ieris19.com/podman-updater/container"
     "ieris19.com/podman-updater/data"
     "ieris19.com/podman-updater/parser"
 )
 
-// Directories to search for container definitions, the search is NOT recursive
-var containerDirs []string = []string{"../circe", "../utilities"}
-
-func getAllFiles() []data.FileEntry {
+func getAllFiles(dirs []string) []data.FileEntry {
     var files []data.FileEntry
 
     // Traverse each root directory for container definitions
-    for _, dir := range containerDirs {
+    for _, dir := range dirs {
         entries, err := os.ReadDir(dir)
         if err != nil {
             fmt.Printf("Error reading directory %s: %v\n", dir, err)
@@ -37,8 +36,16 @@ func getAllFiles() []data.FileEntry {
 }
 
 func main() {
-    // Get all container files
-    containerFiles := getAllFiles()
+    configPath := flag.String("config", "", "path to config.toml (default path if empty)")
+    flag.Parse()
+
+    cfg, err := config.Load(*configPath)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+
+    containerFiles := getAllFiles(cfg.Scanner.Dirs)
     containerDefinitions := parser.ParseContainerFiles(containerFiles)
     // Print parsed container definitions
     var availableUpdates []container.Update
