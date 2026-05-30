@@ -17,25 +17,25 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
     // Parse the quadlet content to extract container information
     quadletInfo := utils.ParseFileKeyValue(content, "=")
 
-    imageInfo, err1 := parseImageInfo(quadletInfo["Image"])
-    if err1 != nil {
+    imageInfo, err := parseImageInfo(quadletInfo["Image"])
+    if err != nil {
         fmt.Printf("Error parsing image %s: %v", file.Path, err)
+        return data.ContainerDefinition{}, err
     }
 
     upstream := data.CheckContainerUpstream(imageInfo)
 
     var semver data.SemanticVersion
-    var err2 error
 
     if imageInfo.Digest == "" && imageInfo.Tag != "" {
-        semver, err2 = data.ParseSemanticVersion(imageInfo.Tag)
+        semver, err = data.ParseSemanticVersion(imageInfo.Tag)
     }
 
     return data.ContainerDefinition{
         Name:     quadletInfo["ContainerName"],
         Image:    imageInfo,
         Upstream: upstream,
-        Version:  utils.TernaryIf(err2 == nil, semver, data.SemanticVersion{}),
+        Version:  utils.TernaryIf(err == nil, semver, data.SemanticVersion{}),
         File:     file,
     }, nil
 }

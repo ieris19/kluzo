@@ -61,39 +61,39 @@ type SemanticVersion struct {
     Extra string
 }
 
-func (self SemanticVersion) String() string {
+func (sv SemanticVersion) String() string {
     extra := ""
-    if self.Extra != "" {
-        extra = "-" + self.Extra
+    if sv.Extra != "" {
+        extra = "-" + sv.Extra
     }
-    return fmt.Sprintf("%d.%d.%d%s", self.Major, self.Minor, self.Patch, extra)
+    return fmt.Sprintf("%d.%d.%d%s", sv.Major, sv.Minor, sv.Patch, extra)
 }
 
-func (self SemanticVersion) LessThan(other SemanticVersion) bool {
-    if self.Major != other.Major {
-        return self.Major < other.Major
+func (sv SemanticVersion) LessThan(other SemanticVersion) bool {
+    if sv.Major != other.Major {
+        return sv.Major < other.Major
     }
-    if self.Minor != other.Minor {
-        return self.Minor < other.Minor
+    if sv.Minor != other.Minor {
+        return sv.Minor < other.Minor
     }
-    return self.Patch < other.Patch
+    return sv.Patch < other.Patch
 }
 
-func (self SemanticVersion) GreaterThan(other SemanticVersion) bool {
-    if self.Major != other.Major {
-        return self.Major > other.Major
+func (sv SemanticVersion) GreaterThan(other SemanticVersion) bool {
+    if sv.Major != other.Major {
+        return sv.Major > other.Major
     }
-    if self.Minor != other.Minor {
-        return self.Minor > other.Minor
+    if sv.Minor != other.Minor {
+        return sv.Minor > other.Minor
     }
-    return self.Patch > other.Patch
+    return sv.Patch > other.Patch
 }
 
-func (self SemanticVersion) Equals(other SemanticVersion) bool {
-    return self.Major == other.Major &&
-        self.Minor == other.Minor &&
-        self.Patch == other.Patch &&
-        self.Extra == other.Extra
+func (sv SemanticVersion) Equals(other SemanticVersion) bool {
+    return sv.Major == other.Major &&
+        sv.Minor == other.Minor &&
+        sv.Patch == other.Patch &&
+        sv.Extra == other.Extra
 }
 
 var SemverRegexp = regexp.MustCompile(`^v?(\d+)(.(\d+))?(.(\d+))?(-(.+))?$`)

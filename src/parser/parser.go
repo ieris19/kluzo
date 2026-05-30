@@ -2,6 +2,7 @@ package parser
 
 import (
     "errors"
+    "fmt"
     "regexp"
 
     "ieris19.com/podman-updater/data"
@@ -23,7 +24,7 @@ func ParseContainerFiles(file []data.FileEntry) []data.ContainerDefinition {
     for _, f := range file {
         container, err := ParseContainerFile(f)
         if err != nil {
-            print("Error parsing file %s: %v\n", f.Path, err)
+            fmt.Printf("Error parsing file %s: %v\n", f.Path, err)
             continue
         }
         containers = append(containers, container)

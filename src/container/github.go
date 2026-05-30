@@ -9,7 +9,7 @@ import (
 )
 
 type GitHubRelease struct {
-    Owner       string `json:`
+    Owner       string `json:repo_owner`
     TagName     string `json:"tag_name"`
     PublishedAt string `json:"created_at"`
 }
