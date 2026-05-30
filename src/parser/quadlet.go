@@ -3,8 +3,8 @@ package parser
 import (
     "fmt"
 
-    "ieris19.com/podman-updater/data"
-    "ieris19.com/podman-updater/utils"
+    "git.ierislabs.dev/update-link/data"
+    "git.ierislabs.dev/update-link/utils"
 )
 
 func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {

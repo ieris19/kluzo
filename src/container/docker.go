@@ -6,7 +6,7 @@ import (
     "slices"
     "time"
 
-    "ieris19.com/podman-updater/data"
+    "git.ierislabs.dev/update-link/data"
 )
 
 type dockerTagList struct {

@@ -1,4 +1,4 @@
-module ieris19.com/podman-updater
+module git.ierislabs.dev/update-link
 
 go 1.25.5
 

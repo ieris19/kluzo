@@ -5,7 +5,7 @@ import (
     "errors"
     "fmt"
 
-    "ieris19.com/podman-updater/data"
+    "git.ierislabs.dev/update-link/data"
 )
 
 type GitHubRelease struct {

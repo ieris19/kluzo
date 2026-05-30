@@ -5,10 +5,10 @@ import (
     "fmt"
     "os"
 
-    "ieris19.com/podman-updater/config"
-    "ieris19.com/podman-updater/container"
-    "ieris19.com/podman-updater/data"
-    "ieris19.com/podman-updater/parser"
+    "git.ierislabs.dev/update-link/config"
+    "git.ierislabs.dev/update-link/container"
+    "git.ierislabs.dev/update-link/data"
+    "git.ierislabs.dev/update-link/parser"
 )
 
 func getAllFiles(dirs []string) []data.FileEntry {

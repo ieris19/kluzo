@@ -5,7 +5,7 @@ import (
     "fmt"
     "regexp"
 
-    "ieris19.com/podman-updater/data"
+    "git.ierislabs.dev/update-link/data"
 )
 
 var supportedExtensions []string = []string{".container"}

@@ -3,7 +3,7 @@ package data
 import (
     _ "embed"
 
-    "ieris19.com/podman-updater/utils"
+    "git.ierislabs.dev/update-link/utils"
 )
 
 //go:embed distribution.conf
