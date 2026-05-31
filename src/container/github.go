@@ -47,19 +47,19 @@ func parseGitHubReleaseVersion(tag string) (data.SemanticVersion, error) {
 func checkGitHubUpdates(definition data.ContainerDefinition) (data.SemanticVersion, error) {
     resp, err := fetchGitHubReleases(definition.Image.Author, definition.Image.Name)
     if err != nil {
-        fmt.Printf("Error fetching releases for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
+        err = fmt.Errorf("could not fetch GitHub releases for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
         return data.SemanticVersion{}, err
     }
 
     latestRelease, err := parseLatestGitHubReleases(resp)
     if err != nil {
-        fmt.Printf("Error parsing releases for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
+        err = fmt.Errorf("could not parse GitHub releases for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
         return data.SemanticVersion{}, err
     }
 
     latestVersion, err := parseGitHubReleaseVersion(latestRelease.TagName)
     if err != nil {
-        fmt.Printf("Error parsing version for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
+        fmt.Printf("could not parse version for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
         return data.SemanticVersion{}, err
     }
 

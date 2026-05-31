@@ -2,7 +2,6 @@ package container
 
 import (
     "errors"
-    "fmt"
 
     "git.ierislabs.dev/update-link/data"
 )
@@ -38,8 +37,7 @@ func CheckUpdate(definition data.ContainerDefinition) (Update, error) {
         return Update{}, errors.New("unsupported upstream: " + string(definition.Upstream))
     }
     if err != nil {
-        msg := fmt.Sprintf("could not check updates: %v\n", err)
-        return Update{}, errors.New(msg)
+        return Update{}, err
     }
 
     compared := checkUpdates(latest, definition)

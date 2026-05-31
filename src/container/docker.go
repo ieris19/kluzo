@@ -75,13 +75,13 @@ func parseDockerHubLatestTag(response string, definition data.ContainerDefinitio
 func checkDockerHubUpdates(definition data.ContainerDefinition) (data.SemanticVersion, error) {
     resp, err := fetchDockerHub(definition.Image.Author, definition.Image.Name)
     if err != nil {
-        fmt.Printf("Error fetching Docker Hub tags for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
+        err = fmt.Errorf("could not fetch Docker Hub tags for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
         return data.SemanticVersion{}, err
     }
 
     latestTag, err := parseDockerHubLatestTag(resp, definition)
     if err != nil {
-        fmt.Printf("Error parsing Docker Hub tags for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
+        err = fmt.Errorf("could not parse Docker Hub tags for %s/%s: %v\n", definition.Image.Author, definition.Image.Name, err)
         return data.SemanticVersion{}, err
     }
 
