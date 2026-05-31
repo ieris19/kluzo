@@ -3,8 +3,6 @@ package container
 import (
     "errors"
     "fmt"
-    "io"
-    "net/http"
 
     "git.ierislabs.dev/update-link/data"
 )
@@ -57,34 +55,6 @@ func CheckUpdate(definition data.ContainerDefinition) (Update, error) {
         update.Upgradeable = false
     }
     return update, nil
-}
-
-func dryRun(compared ComparisonResult, update Update) {
-    switch compared {
-    case GreaterThan:
-        fmt.Printf("Update available for %s: %s -> %s\n", update.ContainerDefinition.File.Path, update.ContainerDefinition.Version.String(), update.LatestVersion.String())
-    case Equal:
-        fmt.Printf("The latest release for %s is %s\n", update.ContainerDefinition.File.Path, update.ContainerDefinition.Version.String())
-    case LessThan:
-        fmt.Printf("Local version for %s is newer than upstream: %s > %s\n", update.ContainerDefinition.File.Path, update.ContainerDefinition.Version.String(), update.LatestVersion.String())
-    }
-}
-
-func fetch(url string) (string, error) {
-    resp, err := http.Get(url)
-    if err != nil {
-        return "", err
-    }
-    defer resp.Body.Close()
-
-    if resp.StatusCode != http.StatusOK {
-        return "", fmt.Errorf("failed to fetch URL %s: status code %d", url, resp.StatusCode)
-    }
-    body, err := io.ReadAll(resp.Body)
-    if err != nil {
-        return "", err
-    }
-    return string(body), nil
 }
 
 func checkUpdates(latestRelease data.SemanticVersion, definition data.ContainerDefinition) ComparisonResult {
