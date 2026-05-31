@@ -96,13 +96,13 @@ func (sv SemanticVersion) Equals(other SemanticVersion) bool {
         sv.Extra == other.Extra
 }
 
-var SemverRegexp = regexp.MustCompile(`^v?(\d+)(.(\d+))?(.(\d+))?(-(.+))?$`)
+var SemverRegexp = regexp.MustCompile(`^v?(\d+)\.(\d+)(?:\.(\d+))?(?:-(.+))?$`)
 
 const (
     semverMajorGroup = 1
-    semverMinorGroup = 3
-    semverPatchGroup = 5
-    semverExtraGroup = 7
+    semverMinorGroup = 2
+    semverPatchGroup = 3
+    semverExtraGroup = 4
 )
 
 func ParseSemanticVersion(tag string) (SemanticVersion, error) {
