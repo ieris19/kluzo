@@ -11,7 +11,7 @@ type Config struct {
 }
 
 type ScannerConfig struct {
-    Dirs []string `toml:"dirs"`
+    Directories []string `toml:"directories"`
 }
 
 func defaultConfigPath() string {

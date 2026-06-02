@@ -45,7 +45,7 @@ func main() {
         os.Exit(1)
     }
 
-    containerFiles := getAllFiles(cfg.Scanner.Dirs)
+    containerFiles := getAllFiles(cfg.Scanner.Directories)
     containerDefinitions := parser.ParseContainerFiles(containerFiles)
     // Print parsed container definitions
     var availableUpdates []container.Update
