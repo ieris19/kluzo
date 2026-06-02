@@ -21,7 +21,11 @@ type dockerTagResponse struct {
 }
 
 func fetchDockerHub(author string, imageName string) (string, error) {
-    url := fmt.Sprintf("https://hub.docker.com/v2/namespaces/%s/repositories/%s/tags?page_size=100", author, imageName)
+    namespace := author
+    if author == "" {
+        namespace = "library"
+    }
+    url := fmt.Sprintf("https://hub.docker.com/v2/namespaces/%s/repositories/%s/tags?page_size=100", namespace, imageName)
     resp, err := fetch(url)
     if err != nil {
         return "", err

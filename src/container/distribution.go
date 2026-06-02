@@ -13,7 +13,11 @@ type DistributionResponse struct {
 }
 
 func fetchDistributionTags(definition data.ContainerDefinition) (string, error) {
-    url := fmt.Sprintf("https://%s/v2/%s/tags/list", definition.Image.Host, definition.Image.Name)
+    imagePath := definition.Image.Name
+    if definition.Image.Author != "" {
+        imagePath = definition.Image.Author + "/" + definition.Image.Name
+    }
+    url := fmt.Sprintf("https://%s/v2/%s/tags/list", definition.Image.Host, imagePath)
     resp, err := fetch(url)
     if err != nil {
         return "", err
