@@ -4,11 +4,36 @@ import (
     "errors"
     "fmt"
     "regexp"
+    "strings"
 
     "git.ierislabs.dev/update-link/data"
 )
 
 var supportedExtensions []string = []string{".container"}
+
+var registryAliases map[string]string
+
+func SetAliases(aliases map[string]string) {
+    registryAliases = aliases
+}
+
+func resolveHostAlias(host string) string {
+    if alias, ok := registryAliases[host]; ok {
+        return alias
+    }
+    return host
+}
+
+func determineAuthor(user string, host string) string {
+    if !strings.Contains(host, "docker.io") {
+        return user
+    }
+    author := user
+    if author == "" {
+        author = "library"
+    }
+    return author
+}
 
 func IsSupportedExtension(extension string) bool {
     for _, ext := range supportedExtensions {
@@ -57,9 +82,13 @@ func parseImageInfo(image string) (data.ImageInfo, error) {
         return data.ImageInfo{}, errors.New("image format did not match expected pattern")
     }
 
+    // Special corrections for compatibility
+    aliasedHost := resolveHostAlias(matches[hostGroup])
+    imageAuthor := determineAuthor(matches[userGroup], aliasedHost)
+
     return data.ImageInfo{
-        Host:   matches[hostGroup],
-        Author: matches[userGroup],
+        Host:   aliasedHost,
+        Author: imageAuthor,
         Name:   matches[nameGroup],
         Tag:    matches[tagGroup],
         Digest: matches[digestGroup],

@@ -45,6 +45,7 @@ func main() {
         os.Exit(1)
     }
 
+    parser.SetAliases(cfg.Registry.Aliases)
     containerFiles := getAllFiles(cfg.Scanner.Directories)
     containerDefinitions := parser.ParseContainerFiles(containerFiles)
     // Print parsed container definitions

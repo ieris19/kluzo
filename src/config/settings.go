@@ -7,11 +7,20 @@ import (
 )
 
 type Config struct {
-    Scanner ScannerConfig `toml:"scanner"`
+    Scanner  ScannerConfig  `toml:"scanner"`
+    Registry RegistryConfig `toml:"registry"`
 }
 
 type ScannerConfig struct {
     Directories []string `toml:"directories"`
+}
+
+type RegistryConfig struct {
+    Aliases map[string]string `toml:"aliases"`
+}
+
+var builtinAliases = map[string]string{
+    "docker.io": "registry-1.docker.io",
 }
 
 func defaultConfigPath() string {
@@ -27,5 +36,14 @@ func Load(path string) (Config, error) {
     if _, err := toml.DecodeFile(path, &cfg); err != nil {
         return Config{}, fmt.Errorf("could not load config from %s: %w", path, err)
     }
+    merged := make(map[string]string)
+    for k, v := range builtinAliases {
+        merged[k] = v
+    }
+    // User-defined aliases overwrite the built-in aliases
+    for k, v := range cfg.Registry.Aliases {
+        merged[k] = v
+    }
+    cfg.Registry.Aliases = merged
     return cfg, nil
 }
