@@ -1,0 +1,13 @@
+[scanner]
+# Directories to scan for Quadlet .container files (non-recursive)
+directories = [
+    "/etc/containers/systemd",
+    "/home/user/.config/containers/systemd",
+]
+
+[registry.aliases]
+# Built-in aliases are always applied and do not need to be listed here.
+# Built-in: "docker.io" = "registry-1.docker.io"
+#
+# Add custom aliases below if a registry hostname redirects to another:
+# "old-registry.example.com" = "new-registry.example.com"
