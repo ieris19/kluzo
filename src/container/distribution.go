@@ -12,58 +12,21 @@ type DistributionResponse struct {
     Tags []string `json:"tags"`
 }
 
-func fetchDistributionTags(definition data.ContainerDefinition) (string, error) {
-    imagePath := definition.Image.Name
-    if definition.Image.Author != "" {
-        imagePath = definition.Image.Author + "/" + definition.Image.Name
+type DistributionFetcher struct{}
+
+func (f DistributionFetcher) FetchTags(image data.ImageInfo) ([]string, error) {
+    imagePath := image.Name
+    if image.Author != "" {
+        imagePath = image.Author + "/" + image.Name
     }
-    url := fmt.Sprintf("https://%s/v2/%s/tags/list", definition.Image.Host, imagePath)
+    url := fmt.Sprintf("https://%s/v2/%s/tags/list", image.Host, imagePath)
     resp, err := fetch(url)
     if err != nil {
-        return "", err
+        return nil, fmt.Errorf("could not fetch distribution tags for %s/%s: %v", image.Author, image.Name, err)
     }
-    return resp, nil
-}
-
-func parseDistributionLatestTag(response string, definition data.ContainerDefinition) (data.SemanticVersion, error) {
     var distTags DistributionResponse
-    err := json.Unmarshal([]byte(response), &distTags)
-    if err != nil {
-        return data.SemanticVersion{}, err
+    if err = json.Unmarshal([]byte(resp), &distTags); err != nil {
+        return nil, fmt.Errorf("could not parse distribution tags for %s/%s: %v", image.Author, image.Name, err)
     }
-
-    if len(distTags.Tags) == 0 {
-        return data.SemanticVersion{}, fmt.Errorf("no tags found")
-    }
-
-    // Find the latest tag in semantic versioning format
-    var latestTag data.SemanticVersion = data.SemanticVersion{Major: 0, Minor: 0, Patch: 0, Extra: ""}
-    for _, tag := range distTags.Tags {
-        if data.SemverRegexp.MatchString(tag) {
-            newMatch, err := data.ParseSemanticVersion(tag)
-            if err != nil {
-                continue
-            }
-            if newMatch.GreaterThan(latestTag) &&
-                newMatch.Extra == definition.Version.Extra {
-                latestTag = newMatch
-            }
-        }
-    }
-
-    return latestTag, nil
-}
-
-func checkDistributionUpdates(definition data.ContainerDefinition) (data.SemanticVersion, error) {
-    response, err := fetchDistributionTags(definition)
-    if err != nil {
-        return data.SemanticVersion{}, err
-    }
-
-    latestTag, err := parseDistributionLatestTag(response, definition)
-    if err != nil {
-        return data.SemanticVersion{}, err
-    }
-
-    return latestTag, nil
+    return distTags.Tags, nil
 }

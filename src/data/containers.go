@@ -29,7 +29,6 @@ const (
     UpstreamGitHub       ContainerUpstream = "github"
     UpstreamDockerHub    ContainerUpstream = "docker"
     UpstreamDistribution ContainerUpstream = "distribution"
-    UpstreamUnknown      ContainerUpstream = "unknown"
 )
 
 func CheckContainerUpstream(image ImageInfo) ContainerUpstream {
@@ -39,19 +38,8 @@ func CheckContainerUpstream(image ImageInfo) ContainerUpstream {
     case "ghcr.io", "github.com":
         return UpstreamGitHub
     default:
-        return checkDistributionDomains(image)
+        return UpstreamDistribution
     }
-}
-
-func checkDistributionDomains(image ImageInfo) ContainerUpstream {
-    // Additional logic to determine if we can identify the upstream
-    host := strings.ToLower(image.Host)
-    for _, knownHost := range DistributionDomains {
-        if strings.Contains(host, knownHost) {
-            return UpstreamDistribution
-        }
-    }
-    return UpstreamUnknown
 }
 
 type SemanticVersion struct {

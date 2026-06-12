@@ -1,8 +1,6 @@
 package container
 
 import (
-    "errors"
-
     "git.ierislabs.dev/update-link/data"
 )
 
@@ -22,45 +20,29 @@ type Update struct {
 }
 
 func CheckUpdate(definition data.ContainerDefinition) (Update, error) {
-    var (
-        latest data.SemanticVersion
-        err    error
-    )
+    var fetcher TagFetcher
     switch definition.Upstream {
     case data.UpstreamGitHub:
-        latest, err = checkGitHubUpdates(definition)
+        fetcher = GitHubFetcher{}
     case data.UpstreamDockerHub:
-        latest, err = checkDockerHubUpdates(definition)
-    case data.UpstreamDistribution:
-        latest, err = checkDistributionUpdates(definition)
+        fetcher = DockerHubFetcher{}
     default:
-        return Update{}, errors.New("unsupported upstream: " + string(definition.Upstream))
+        fetcher = DistributionFetcher{}
     }
+
+    tags, err := fetcher.FetchTags(definition.Image)
     if err != nil {
         return Update{}, err
     }
 
-    compared := checkUpdates(latest, definition)
-    update := Update{
+    latest, err := selectLatestTag(tags, definition.Version.Extra)
+    if err != nil {
+        return Update{}, err
+    }
+
+    return Update{
         ContainerDefinition: definition,
         LatestVersion:       latest,
-    }
-
-    switch compared {
-    case GreaterThan:
-        update.Upgradeable = true
-    case Equal, LessThan:
-        update.Upgradeable = false
-    }
-    return update, nil
-}
-
-func checkUpdates(latestRelease data.SemanticVersion, definition data.ContainerDefinition) ComparisonResult {
-    if latestRelease.GreaterThan(definition.Version) {
-        return GreaterThan
-    }
-    if latestRelease.Equals(definition.Version) {
-        return Equal
-    }
-    return LessThan
+        Upgradeable:         latest.GreaterThan(definition.Version),
+    }, nil
 }
