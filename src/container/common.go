@@ -148,7 +148,12 @@ func fetchAuthorization(targetURL string, challenge bearerChallenge) (string, er
 }
 
 func fetch(targetURL string) (string, error) {
-    resp, err := httpClient.Get(targetURL)
+    req, err := http.NewRequest(http.MethodGet, targetURL, nil)
+    if err != nil {
+        return "", err
+    }
+    req.Header.Set("Accept", "application/json")
+    resp, err := httpClient.Do(req)
     if err != nil {
         return "", err
     }
@@ -164,6 +169,9 @@ func fetch(targetURL string) (string, error) {
 
     if resp.StatusCode != http.StatusOK {
         return "", fmt.Errorf("failed to fetch URL %s: status code %d", targetURL, resp.StatusCode)
+    }
+    if ct := resp.Header.Get("Content-Type"); strings.Contains(ct, "text/html") {
+        return "", fmt.Errorf("failed to fetch URL %s: server returned HTML instead of JSON", targetURL)
     }
     body, err := io.ReadAll(resp.Body)
     if err != nil {
