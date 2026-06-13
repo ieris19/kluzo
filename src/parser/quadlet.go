@@ -15,16 +15,17 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
     }
 
     // Parse the quadlet content to extract container information
-    quadletInfo := files.ParseFileKeyValue(content, "=")
+    sections := files.ParseFileKeyValue(content, "=")
+    container := sections["Container"]
 
-    imageInfo, err := parseImageInfo(quadletInfo["Image"])
+    imageInfo, err := parseImageInfo(container["Image"])
     if err != nil {
         fmt.Printf("Error parsing image %s: %v", file.Path, err)
         return data.ContainerDefinition{}, err
     }
 
     if imageInfo.Digest != "" || imageInfo.Tag == "" {
-        return data.ContainerDefinition{}, fmt.Errorf("no semver tag found for %s", quadletInfo["ContainerName"])
+        return data.ContainerDefinition{}, fmt.Errorf("no semver tag found for %s", container["ContainerName"])
     }
     semver, err := data.ParseSemanticVersion(imageInfo.Tag)
     if err != nil {
@@ -32,9 +33,9 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
     }
 
     return data.ContainerDefinition{
-        Name:    quadletInfo["ContainerName"],
-        Image:   imageInfo,
-        Version: semver,
-        File:    file,
+        Name:       container["ContainerName"],
+        Image:      imageInfo,
+        Version:    semver,
+        File:       file,
     }, nil
 }

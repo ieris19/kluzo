@@ -22,7 +22,7 @@ func main() {
     }
 
     parser.SetAliases(cfg.Registry.Aliases)
-    containerFiles := files.GetAllFiles(cfg.Scanner.Directories, parser.SupportedExtensions)
+    containerFiles := files.GetAllFiles(cfg.Scanner, parser.SupportedExtensions)
     containerDefinitions := parser.ParseContainerFiles(containerFiles)
     // Print parsed container definitions
     var availableUpdates []container.Update

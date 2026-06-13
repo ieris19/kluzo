@@ -13,6 +13,7 @@ type Config struct {
 
 type ScannerConfig struct {
     Directories []string `toml:"directories"`
+    Exclude     []string `toml:"exclude"`
 }
 
 type RegistryConfig struct {
