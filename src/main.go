@@ -54,7 +54,7 @@ func report(upToDate []container.Update, availableUpdates []container.Update) {
     if len(upToDate) > 0 {
         fmt.Println("\nUp-to-date Containers:")
         for _, update := range upToDate {
-            fmt.Printf("- %s: Version %s\n", update.ContainerDefinition.Name, update.ContainerDefinition.Version.String())
+            fmt.Printf("- %s: %s\n", update.ContainerDefinition.Name, update.ContainerDefinition.Version.String())
         }
     }
 }

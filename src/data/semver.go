@@ -11,9 +11,13 @@ type SemanticVersion struct {
     Minor int
     Patch int
     Extra string
+    Raw   string
 }
 
 func (sv SemanticVersion) String() string {
+    if sv.Raw != "" {
+        return sv.Raw
+    }
     extra := ""
     if sv.Extra != "" {
         extra = "-" + sv.Extra
@@ -67,6 +71,7 @@ func ParseSemanticVersion(tag string, re *regexp.Regexp) (SemanticVersion, error
         Minor: minor,
         Patch: patch,
         Extra: match.Get("extra"),
+        Raw:   tag,
     }, nil
 }
 
