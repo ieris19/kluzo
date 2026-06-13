@@ -85,11 +85,3 @@ func parseImageInfo(image string) (data.ImageInfo, error) {
         Digest: matches[digestGroup],
     }, nil
 }
-
-func mustParseImageInfo(image string) data.ImageInfo {
-    info, err := parseImageInfo(image)
-    if err != nil {
-        panic(err)
-    }
-    return info
-}

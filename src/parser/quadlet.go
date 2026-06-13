@@ -23,8 +23,6 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
         return data.ContainerDefinition{}, err
     }
 
-    upstream := data.CheckContainerUpstream(imageInfo)
-
     if imageInfo.Digest != "" || imageInfo.Tag == "" {
         return data.ContainerDefinition{}, fmt.Errorf("no semver tag found for %s", quadletInfo["ContainerName"])
     }
@@ -34,10 +32,9 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
     }
 
     return data.ContainerDefinition{
-        Name:     quadletInfo["ContainerName"],
-        Image:    imageInfo,
-        Upstream: upstream,
-        Version:  semver,
-        File:     file,
+        Name:    quadletInfo["ContainerName"],
+        Image:   imageInfo,
+        Version: semver,
+        File:    file,
     }, nil
 }

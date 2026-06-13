@@ -43,7 +43,7 @@ func selectLatestTag(tags []string, currentExtra string) (data.SemanticVersion, 
         if a.GreaterThan(b) {
             return -1
         }
-        if b.GreaterThan(a) {
+        if a.LessThan(b) {
             return 1
         }
         return 0
