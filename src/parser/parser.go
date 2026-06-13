@@ -9,7 +9,7 @@ import (
     "git.ierislabs.dev/update-link/data"
 )
 
-var supportedExtensions []string = []string{".container"}
+var SupportedExtensions []string = []string{".container"}
 
 var registryAliases map[string]string
 
@@ -33,15 +33,6 @@ func determineAuthor(user string, host string) string {
         author = "library"
     }
     return author
-}
-
-func IsSupportedExtension(extension string) bool {
-    for _, ext := range supportedExtensions {
-        if ext == extension {
-            return true
-        }
-    }
-    return false
 }
 
 func ParseContainerFiles(file []data.FileEntry) []data.ContainerDefinition {

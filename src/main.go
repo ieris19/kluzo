@@ -7,33 +7,9 @@ import (
 
     "git.ierislabs.dev/update-link/config"
     "git.ierislabs.dev/update-link/container"
-    "git.ierislabs.dev/update-link/data"
+    "git.ierislabs.dev/update-link/files"
     "git.ierislabs.dev/update-link/parser"
 )
-
-func getAllFiles(dirs []string) []data.FileEntry {
-    var files []data.FileEntry
-
-    // Traverse each root directory for container definitions
-    for _, dir := range dirs {
-        entries, err := os.ReadDir(dir)
-        if err != nil {
-            fmt.Printf("Error reading directory %s: %v\n", dir, err)
-            continue
-        }
-        files = append(files, data.NewFileEntries(dir, entries)...)
-    }
-
-    // Filter files by supported extensions
-    var containerFiles []data.FileEntry
-    for _, file := range files {
-        if parser.IsSupportedExtension(file.Extension) {
-            containerFiles = append(containerFiles, file)
-        }
-    }
-
-    return containerFiles
-}
 
 func main() {
     configPath := flag.String("config", "", "path to config.toml (default path if empty)")
@@ -46,7 +22,7 @@ func main() {
     }
 
     parser.SetAliases(cfg.Registry.Aliases)
-    containerFiles := getAllFiles(cfg.Scanner.Directories)
+    containerFiles := files.GetAllFiles(cfg.Scanner.Directories, parser.SupportedExtensions)
     containerDefinitions := parser.ParseContainerFiles(containerFiles)
     // Print parsed container definitions
     var availableUpdates []container.Update

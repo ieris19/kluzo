@@ -4,7 +4,7 @@ import (
     "fmt"
 
     "git.ierislabs.dev/update-link/data"
-    "git.ierislabs.dev/update-link/utils"
+    "git.ierislabs.dev/update-link/files"
 )
 
 func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
@@ -15,7 +15,7 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
     }
 
     // Parse the quadlet content to extract container information
-    quadletInfo := utils.ParseFileKeyValue(content, "=")
+    quadletInfo := files.ParseFileKeyValue(content, "=")
 
     imageInfo, err := parseImageInfo(quadletInfo["Image"])
     if err != nil {
