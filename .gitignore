@@ -1,1 +1,6 @@
+# IDE Settings
 .idea
+.vscode
+
+# Project files
+/dev.toml
