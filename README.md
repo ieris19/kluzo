@@ -1,11 +1,30 @@
 # UpdateLink
 
-This project is an attempt at creating an automation platform that has two
-related but distinct goals:
+A Podman-focused CLI tool that checks container versions in Quadlet `.container`
+files against their upstream registries and reports which containers have
+updates available.
 
-1. Allow me to check my containers versions against the repository for updates.
-2. Allow me to manage symlinks between my git repository and my deployed
-   quadlets
+## Usage
 
-This is a very podman focused tool, and there are currently no plans to
-support other containerization tools.
+```
+update-link [--config /path/to/config.toml]
+```
+
+The config file defaults to `/etc/update-link/config.toml` if `--config` is not
+specified.
+
+## Configuration
+
+You can find an example of a configuration file in the repository called
+`sample.toml`. For further information, refer to the config package that manages
+the configuration.
+
+## Limitations
+
+- Only Quadlet `.container` files are supported.
+- Upstream registries must expose
+  the [OCI Distribution](https://github.com/opencontainers/distribution-spec)
+  tag-listing API. Aliases may be needed for registries whose public hostname
+  differs from their API endpoint (e.g. `docker.io`).
+- Versions must be valid semantic version tags. Digest-pinned, textual tags or
+  untagged images are skipped.

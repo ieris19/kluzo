@@ -25,6 +25,8 @@ shortcomings that need to be addressed eventually.
 
 ## Planned Features
 
-- [ ] Add support for compose files
+- [ ] Add support for `compose` files
+- [ ] Add support for authentication on private registries through
+   credentials stored either in the config or wherever podman/docker stores them
 - [ ] Add support for comparing digests on non-semver tags
 - [ ] Add additional management features beyond checks, such as actual upgrades
