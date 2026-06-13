@@ -48,29 +48,51 @@ func (sv SemanticVersion) Equals(other SemanticVersion) bool {
         sv.Extra == other.Extra
 }
 
-var SemverRegexp = regexp.MustCompile(`^v?(\d+)\.(\d+)(?:\.(\d+))?(?:-(.+))?$`)
+var SemverRegexp = regexp.MustCompile(`^v?(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?(?:-(?P<extra>.+))?$`)
 
-const (
-    semverMajorGroup = 1
-    semverMinorGroup = 2
-    semverPatchGroup = 3
-    semverExtraGroup = 4
-)
-
-func ParseSemanticVersion(tag string) (SemanticVersion, error) {
-    matches := SemverRegexp.FindStringSubmatch(tag)
-    if matches == nil {
+func ParseSemanticVersion(tag string, re *regexp.Regexp) (SemanticVersion, error) {
+    if re == nil {
+        re = SemverRegexp
+    }
+    match := re.FindStringSubmatch(tag)
+    if match == nil {
         return SemanticVersion{}, fmt.Errorf("tag %s is not a valid semantic version", tag)
     }
-
-    major, _ := strconv.Atoi(matches[semverMajorGroup])
-    minor, _ := strconv.Atoi(matches[semverMinorGroup])
-    patch, _ := strconv.Atoi(matches[semverPatchGroup])
-
+    index := make(map[string]int)
+    for i, name := range re.SubexpNames() {
+        if name != "" {
+            index[name] = i
+        }
+    }
+    get := func(name string) string {
+        if i, ok := index[name]; ok {
+            return match[i]
+        }
+        return ""
+    }
+    major, _ := strconv.Atoi(get("major"))
+    minor, _ := strconv.Atoi(get("minor"))
+    patch, _ := strconv.Atoi(get("patch"))
     return SemanticVersion{
         Major: major,
         Minor: minor,
         Patch: patch,
-        Extra: matches[semverExtraGroup],
+        Extra: get("extra"),
     }, nil
+}
+
+func ValidateTagPattern(re *regexp.Regexp) error {
+    hasMajor, hasMinor := false, false
+    for _, name := range re.SubexpNames() {
+        switch name {
+        case "major":
+            hasMajor = true
+        case "minor":
+            hasMinor = true
+        }
+    }
+    if !hasMajor || !hasMinor {
+        return fmt.Errorf("tag pattern must define named groups 'major' and 'minor'")
+    }
+    return nil
 }

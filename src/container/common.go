@@ -20,17 +20,19 @@ type TagFetcher interface {
     FetchTags(image data.ImageInfo) ([]string, error)
 }
 
-func selectLatestTag(tags []string, currentExtra string) (data.SemanticVersion, error) {
+func selectLatestTag(tags []string, currentExtra string, tagPattern *regexp.Regexp) (data.SemanticVersion, error) {
     var candidates []data.SemanticVersion
     for _, tag := range tags {
-        if currentExtra == "" {
-            if strings.Contains(tag, "-") {
+        if tagPattern == nil {
+            if currentExtra == "" {
+                if strings.Contains(tag, "-") {
+                    continue
+                }
+            } else if !strings.Contains(tag, "-"+currentExtra) {
                 continue
             }
-        } else if !strings.Contains(tag, "-"+currentExtra) {
-            continue
         }
-        v, err := data.ParseSemanticVersion(tag)
+        v, err := data.ParseSemanticVersion(tag, tagPattern)
         if err != nil || v.Extra != currentExtra {
             continue
         }

@@ -2,6 +2,7 @@ package parser
 
 import (
     "fmt"
+    "regexp"
 
     "git.ierislabs.dev/update-link/data"
     "git.ierislabs.dev/update-link/files"
@@ -27,7 +28,20 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
     if imageInfo.Digest != "" || imageInfo.Tag == "" {
         return data.ContainerDefinition{}, fmt.Errorf("no semver tag found for %s", container["ContainerName"])
     }
-    semver, err := data.ParseSemanticVersion(imageInfo.Tag)
+
+    var tagPattern *regexp.Regexp
+    if pattern := sections["X-UpdateLink"]["TagPattern"]; pattern != "" {
+        re, err := regexp.Compile(pattern)
+        if err != nil {
+            return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %w", container["ContainerName"], err)
+        }
+        if err := data.ValidateTagPattern(re); err != nil {
+            return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %w", container["ContainerName"], err)
+        }
+        tagPattern = re
+    }
+
+    semver, err := data.ParseSemanticVersion(imageInfo.Tag, tagPattern)
     if err != nil {
         return data.ContainerDefinition{}, err
     }
@@ -37,5 +51,6 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
         Image:      imageInfo,
         Version:    semver,
         File:       file,
+        TagPattern: tagPattern,
     }, nil
 }

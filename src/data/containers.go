@@ -1,5 +1,7 @@
 package data
 
+import "regexp"
+
 type ImageInfo struct {
     Host   string
     Author string
@@ -7,9 +9,11 @@ type ImageInfo struct {
     Tag    string
     Digest string
 }
+
 type ContainerDefinition struct {
-    Name    string
-    Image   ImageInfo
-    Version SemanticVersion
-    File    FileEntry
+    Name       string
+    Image      ImageInfo
+    Version    SemanticVersion
+    File       FileEntry
+    TagPattern *regexp.Regexp
 }
