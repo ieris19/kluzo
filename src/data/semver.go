@@ -48,36 +48,25 @@ func (sv SemanticVersion) Equals(other SemanticVersion) bool {
         sv.Extra == other.Extra
 }
 
-var SemverRegexp = regexp.MustCompile(`^v?(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?(?:-(?P<extra>.+))?$`)
+var semverMatcher = NewNamedMatcher(regexp.MustCompile(`^v?(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?(?:-(?P<extra>.+))?$`))
 
 func ParseSemanticVersion(tag string, re *regexp.Regexp) (SemanticVersion, error) {
-    if re == nil {
-        re = SemverRegexp
+    matcher := semverMatcher
+    if re != nil {
+        matcher = NewNamedMatcher(re)
     }
-    match := re.FindStringSubmatch(tag)
-    if match == nil {
+    match, ok := matcher.Match(tag)
+    if !ok {
         return SemanticVersion{}, fmt.Errorf("tag %s is not a valid semantic version", tag)
     }
-    index := make(map[string]int)
-    for i, name := range re.SubexpNames() {
-        if name != "" {
-            index[name] = i
-        }
-    }
-    get := func(name string) string {
-        if i, ok := index[name]; ok {
-            return match[i]
-        }
-        return ""
-    }
-    major, _ := strconv.Atoi(get("major"))
-    minor, _ := strconv.Atoi(get("minor"))
-    patch, _ := strconv.Atoi(get("patch"))
+    major, _ := strconv.Atoi(match.Get("major"))
+    minor, _ := strconv.Atoi(match.Get("minor"))
+    patch, _ := strconv.Atoi(match.Get("patch"))
     return SemanticVersion{
         Major: major,
         Minor: minor,
         Patch: patch,
-        Extra: get("extra"),
+        Extra: match.Get("extra"),
     }, nil
 }
 

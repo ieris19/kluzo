@@ -57,31 +57,23 @@ func ParseContainerFile(file data.FileEntry) (data.ContainerDefinition, error) {
     }
 }
 
-var imageRegexp = regexp.MustCompile(`^(([^/\s]*)/)?(([^/\s]*)/)?([^\s/:@]*)((:([\w.-]*))|(@(sha\d{3}:[a-z0-9]*)))?$`)
-
-const (
-    hostGroup   = 2
-    userGroup   = 4
-    nameGroup   = 5
-    tagGroup    = 8
-    digestGroup = 10
-)
+var imageMatcher = data.NewNamedMatcher(regexp.MustCompile(`^(?:(?P<host>[^/\s]*)/)?(?:(?P<user>[^/\s]*)/)?(?P<name>[^\s/:@]*)(?::(?P<tag>[\w.-]*)|@(?P<digest>sha\d{3}:[a-z0-9]*))?$`))
 
 func parseImageInfo(image string) (data.ImageInfo, error) {
-    matches := imageRegexp.FindStringSubmatch(image)
-    if matches == nil {
+    match, ok := imageMatcher.Match(image)
+    if !ok {
         return data.ImageInfo{}, errors.New("image format did not match expected pattern")
     }
 
     // Special corrections for compatibility
-    aliasedHost := resolveHostAlias(matches[hostGroup])
-    imageAuthor := determineAuthor(matches[userGroup], aliasedHost)
+    aliasedHost := resolveHostAlias(match.Get("host"))
+    imageAuthor := determineAuthor(match.Get("user"), aliasedHost)
 
     return data.ImageInfo{
         Host:   aliasedHost,
         Author: imageAuthor,
-        Name:   matches[nameGroup],
-        Tag:    matches[tagGroup],
-        Digest: matches[digestGroup],
+        Name:   match.Get("name"),
+        Tag:    match.Get("tag"),
+        Digest: match.Get("digest"),
     }, nil
 }
