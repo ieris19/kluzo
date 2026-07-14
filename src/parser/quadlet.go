@@ -21,7 +21,7 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
 
     imageInfo, err := parseImageInfo(container["Image"])
     if err != nil {
-        fmt.Printf("Error parsing image %s: %v", file.Path, err)
+        fmt.Printf("Error parsing image %s: %v\n", file.Path, err)
         return data.ContainerDefinition{}, err
     }
 

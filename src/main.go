@@ -7,7 +7,9 @@ import (
 
     "git.ierislabs.dev/update-link/config"
     "git.ierislabs.dev/update-link/container"
+    "git.ierislabs.dev/update-link/data"
     "git.ierislabs.dev/update-link/files"
+    "git.ierislabs.dev/update-link/output"
     "git.ierislabs.dev/update-link/parser"
 )
 
@@ -25,36 +27,31 @@ func main() {
     containerFiles := files.GetAllFiles(cfg.Scanner, parser.SupportedExtensions)
     containerDefinitions := parser.ParseContainerFiles(containerFiles)
     // Print parsed container definitions
-    var availableUpdates []container.Update
-    var upToDate []container.Update
+    cntReport := data.UpdateReport{
+        Outdated: []data.Update{},
+        Updated:  []data.Update{},
+        Errors:   []data.ContainerError{},
+    }
 
     for _, cnt := range containerDefinitions {
         update, err := container.CheckUpdate(cnt)
+        // Problem
         if err != nil {
-            fmt.Printf("Error checking updates for %s: %v\n", cnt.File.Path, err)
+            cntReport.Errors = append(cntReport.Errors, data.ContainerError{
+                Message:    err.Error(),
+                Definition: cnt,
+            })
             continue
         }
 
+        // Update available
         if update.Upgradeable {
-            availableUpdates = append(availableUpdates, update)
-        } else {
-            upToDate = append(upToDate, update)
+            cntReport.Outdated = append(cntReport.Outdated, update)
+            continue
         }
-    }
-    report(upToDate, availableUpdates)
-}
 
-func report(upToDate []container.Update, availableUpdates []container.Update) {
-    if len(availableUpdates) > 0 {
-        fmt.Println("Available Updates:")
-        for _, update := range availableUpdates {
-            fmt.Printf("- %s: Current version %s, Latest version %s\n", update.ContainerDefinition.Name, update.ContainerDefinition.Version.String(), update.LatestVersion.String())
-        }
+        // No updates available
+        cntReport.Updated = append(cntReport.Updated, update)
     }
-    if len(upToDate) > 0 {
-        fmt.Println("\nUp-to-date Containers:")
-        for _, update := range upToDate {
-            fmt.Printf("- %s: %s\n", update.ContainerDefinition.Name, update.ContainerDefinition.Version.String())
-        }
-    }
+    output.ReportStdout(cntReport)
 }

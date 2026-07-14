@@ -4,28 +4,22 @@ import (
     "git.ierislabs.dev/update-link/data"
 )
 
-type Update struct {
-    ContainerDefinition data.ContainerDefinition
-    LatestVersion       data.SemanticVersion
-    Upgradeable         bool
-}
-
-func CheckUpdate(definition data.ContainerDefinition) (Update, error) {
+func CheckUpdate(definition data.ContainerDefinition) (data.Update, error) {
     fetcher := DistributionFetcher{}
 
     tags, err := fetcher.FetchTags(definition.Image)
     if err != nil {
-        return Update{}, err
+        return data.Update{}, err
     }
 
     latest, err := selectLatestTag(tags, definition.Version.Extra, definition.TagPattern)
     if err != nil {
-        return Update{}, err
+        return data.Update{}, err
     }
 
-    return Update{
-        ContainerDefinition: definition,
-        LatestVersion:       latest,
-        Upgradeable:         latest.GreaterThan(definition.Version),
+    return data.Update{
+        Definition:    definition,
+        LatestVersion: latest,
+        Upgradeable:   latest.GreaterThan(definition.Version),
     }, nil
 }
