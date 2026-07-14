@@ -20,7 +20,7 @@ type RegistryConfig struct {
     Aliases map[string]string `toml:"aliases"`
 }
 
-var builtinAliases = map[string]string{
+var BuiltinAliases = map[string]string{
     "docker.io": "registry-1.docker.io",
 }
 
@@ -38,7 +38,7 @@ func Load(path string) (Config, error) {
         return Config{}, fmt.Errorf("could not load config from %s: %w", path, err)
     }
     merged := make(map[string]string)
-    for k, v := range builtinAliases {
+    for k, v := range BuiltinAliases {
         merged[k] = v
     }
     // User-defined aliases overwrite the built-in aliases
