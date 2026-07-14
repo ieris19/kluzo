@@ -61,7 +61,7 @@ func ParseSemanticVersion(tag string, re *regexp.Regexp) (SemanticVersion, error
     }
     match, ok := matcher.Match(tag)
     if !ok {
-        return SemanticVersion{}, fmt.Errorf("tag %s is not a valid semantic version", tag)
+        return SemanticVersion{}, fmt.Errorf("tag '%s' is not a valid semantic version", tag)
     }
     major, _ := strconv.Atoi(match.Get("major"))
     minor, _ := strconv.Atoi(match.Get("minor"))

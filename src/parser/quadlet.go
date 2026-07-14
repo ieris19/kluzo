@@ -18,8 +18,21 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
     // Parse the quadlet content to extract container information
     sections := files.ParseFileKeyValue(content, "=")
     container := sections["Container"]
+    updateLink := sections["X-UpdateLink"]
 
-    imageInfo, err := parseImageInfo(container["Image"])
+    var imagePattern *regexp.Regexp
+    if pattern := updateLink["ImagePattern"]; pattern != "" {
+        re, err := regexp.Compile(pattern)
+        if err != nil {
+            return data.ContainerDefinition{}, fmt.Errorf("invalid image pattern for %s: %w", container["ContainerName"], err)
+        }
+        if err := data.ValidateImagePattern(re); err != nil {
+            return data.ContainerDefinition{}, fmt.Errorf("invalid image pattern for %s: %w", container["ContainerName"], err)
+        }
+        imagePattern = re
+    }
+
+    imageInfo, err := parseImageInfo(container["Image"], imagePattern)
     if err != nil {
         fmt.Printf("Error parsing image %s: %v\n", file.Path, err)
         return data.ContainerDefinition{}, err
@@ -30,7 +43,7 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
     }
 
     var tagPattern *regexp.Regexp
-    if pattern := sections["X-UpdateLink"]["TagPattern"]; pattern != "" {
+    if pattern := updateLink["TagPattern"]; pattern != "" {
         re, err := regexp.Compile(pattern)
         if err != nil {
             return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %w", container["ContainerName"], err)
