@@ -1,6 +1,9 @@
 package data
 
-import "regexp"
+import (
+    "fmt"
+    "regexp"
+)
 
 type ImageInfo struct {
     Host   string
@@ -24,9 +27,29 @@ type Update struct {
     Upgradeable   bool
 }
 
+type Stage string
+
+const (
+    ParseStage Stage = "parse"
+    CheckStage Stage = "check"
+)
+
 type ContainerError struct {
-    Message    string
-    Definition ContainerDefinition
+    File  FileEntry
+    Name  string
+    Stage Stage
+    Err   error
+}
+
+func (e ContainerError) Error() string {
+    if e.Name != "" {
+        return fmt.Sprintf("%s (%s): %v", e.Name, e.File.Path, e.Err)
+    }
+    return fmt.Sprintf("%s: %v", e.File.Path, e.Err)
+}
+
+func (e ContainerError) Unwrap() error {
+    return e.Err
 }
 
 type UpdateReport struct {

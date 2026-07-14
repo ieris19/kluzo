@@ -10,6 +10,13 @@ func containerId(container data.ContainerDefinition) string {
     return fmt.Sprintf("%s#%s", container.File.Path, container.Name)
 }
 
+func errorId(err data.ContainerError) string {
+    if err.Name != "" {
+        return fmt.Sprintf("%s#%s", err.File.Path, err.Name)
+    }
+    return err.File.Path
+}
+
 func ReportStdout(containers data.UpdateReport) {
     if len(containers.Outdated) > 0 {
         fmt.Println("Available Updates:")
@@ -24,10 +31,10 @@ func ReportStdout(containers data.UpdateReport) {
         }
     }
     if len(containers.Errors) > 0 {
-        fmt.Println("\nUp-to-date Containers:")
+        fmt.Println("\nErrors:")
         for _, err := range containers.Errors {
-            fmt.Printf("- %s: %s\n", containerId(err.Definition), err.Message)
+            fmt.Printf("- %s [%s]: %v\n", errorId(err), err.Stage, err.Err)
         }
     }
-    fmt.Printf("\nOutdated: %d | Up to Date: %d | Total: %d\n", len(containers.Outdated), len(containers.Updated), len(containers.Errors)+len(containers.Updated)+len(containers.Outdated))
+    fmt.Printf("\nOutdated: %d | Up to Date: %d | Errors: %d | Total: %d\n", len(containers.Outdated), len(containers.Updated), len(containers.Errors), len(containers.Errors)+len(containers.Updated)+len(containers.Outdated))
 }

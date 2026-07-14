@@ -2,7 +2,6 @@ package parser
 
 import (
     "errors"
-    "fmt"
     "regexp"
     "strings"
 
@@ -35,17 +34,22 @@ func determineAuthor(user string, host string) string {
     return author
 }
 
-func ParseContainerFiles(file []data.FileEntry) []data.ContainerDefinition {
+func ParseContainerFiles(file []data.FileEntry) ([]data.ContainerDefinition, []data.ContainerError) {
     var containers []data.ContainerDefinition
+    var errs []data.ContainerError
     for _, f := range file {
         container, err := ParseContainerFile(f)
         if err != nil {
-            fmt.Printf("Error parsing file %s: %v\n", f.Path, err)
+            errs = append(errs, data.ContainerError{
+                File:  f,
+                Stage: data.ParseStage,
+                Err:   err,
+            })
             continue
         }
         containers = append(containers, container)
     }
-    return containers
+    return containers, errs
 }
 
 func ParseContainerFile(file data.FileEntry) (data.ContainerDefinition, error) {

@@ -25,12 +25,12 @@ func main() {
 
     parser.SetAliases(cfg.Registry.Aliases)
     containerFiles := files.GetAllFiles(cfg.Scanner, parser.SupportedExtensions)
-    containerDefinitions := parser.ParseContainerFiles(containerFiles)
+    containerDefinitions, parseErrors := parser.ParseContainerFiles(containerFiles)
     // Print parsed container definitions
     cntReport := data.UpdateReport{
         Outdated: []data.Update{},
         Updated:  []data.Update{},
-        Errors:   []data.ContainerError{},
+        Errors:   parseErrors,
     }
 
     for _, cnt := range containerDefinitions {
@@ -38,8 +38,10 @@ func main() {
         // Problem
         if err != nil {
             cntReport.Errors = append(cntReport.Errors, data.ContainerError{
-                Message:    err.Error(),
-                Definition: cnt,
+                File:  cnt.File,
+                Name:  cnt.Name,
+                Stage: data.CheckStage,
+                Err:   err,
             })
             continue
         }
