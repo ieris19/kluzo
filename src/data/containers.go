@@ -23,12 +23,36 @@ func ValidateImagePattern(re *regexp.Regexp) error {
     return fmt.Errorf("image pattern must define a named group 'name'")
 }
 
+type PinLevel string
+
+const (
+    // PinChannel is the default: only tags matching the current channel (Extra)
+    PinChannel PinLevel = "channel"
+    // PinMajor additionally only considers tags sharing the current Major version.
+    PinMajor PinLevel = "major"
+    // PinMinor additionally only considers tags sharing the current Major.Minor version.
+    PinMinor PinLevel = "minor"
+    // PinFreeze skips the upstream check entirely.
+    PinFreeze PinLevel = "freeze"
+)
+
+// Empty string represents an omitted Pin key, defaulting to PinChannel.
+func (p PinLevel) Valid() bool {
+    switch p {
+    case "", PinChannel, PinMajor, PinMinor, PinFreeze:
+        return true
+    default:
+        return false
+    }
+}
+
 type ContainerDefinition struct {
     Name       string
     Image      ImageInfo
     Version    SemanticVersion
     File       FileEntry
     TagPattern *regexp.Regexp
+    Pin        PinLevel
 }
 
 type Update struct {
@@ -65,5 +89,6 @@ func (e ContainerError) Unwrap() error {
 type UpdateReport struct {
     Outdated []Update
     Updated  []Update
+    Frozen   []ContainerDefinition
     Errors   []ContainerError
 }

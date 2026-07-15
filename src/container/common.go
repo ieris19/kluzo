@@ -20,20 +20,28 @@ type TagFetcher interface {
     FetchTags(image data.ImageInfo) ([]string, error)
 }
 
-func selectLatestTag(tags []string, currentExtra string, tagPattern *regexp.Regexp) (data.SemanticVersion, error) {
+func selectLatestTag(tags []string, definition data.ContainerDefinition) (data.SemanticVersion, error) {
+    current := definition.Version
+    tagPattern := definition.TagPattern
     var candidates []data.SemanticVersion
     for _, tag := range tags {
         if tagPattern == nil {
-            if currentExtra == "" {
+            if current.Extra == "" {
                 if strings.Contains(tag, "-") {
                     continue
                 }
-            } else if !strings.Contains(tag, "-"+currentExtra) {
+            } else if !strings.Contains(tag, "-"+current.Extra) {
                 continue
             }
         }
         v, err := data.ParseSemanticVersion(tag, tagPattern)
-        if err != nil || v.Extra != currentExtra {
+        if err != nil || v.Extra != current.Extra {
+            continue
+        }
+        if definition.Pin == data.PinMajor && v.Major != current.Major {
+            continue
+        }
+        if definition.Pin == data.PinMinor && (v.Major != current.Major || v.Minor != current.Minor) {
             continue
         }
         candidates = append(candidates, v)

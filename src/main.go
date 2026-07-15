@@ -30,10 +30,17 @@ func main() {
     cntReport := data.UpdateReport{
         Outdated: []data.Update{},
         Updated:  []data.Update{},
+        Frozen:   []data.ContainerDefinition{},
         Errors:   parseErrors,
     }
 
     for _, cnt := range containerDefinitions {
+        // Frozen containers are skipped entirely
+        if cnt.Pin == data.PinFreeze {
+            cntReport.Frozen = append(cntReport.Frozen, cnt)
+            continue
+        }
+
         update, err := container.CheckUpdate(cnt)
         // Problem
         if err != nil {

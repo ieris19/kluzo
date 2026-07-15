@@ -12,7 +12,7 @@ func CheckUpdate(definition data.ContainerDefinition) (data.Update, error) {
         return data.Update{}, err
     }
 
-    latest, err := selectLatestTag(tags, definition.Version.Extra, definition.TagPattern)
+    latest, err := selectLatestTag(tags, definition)
     if err != nil {
         return data.Update{}, err
     }

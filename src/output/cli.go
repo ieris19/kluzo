@@ -30,11 +30,18 @@ func ReportStdout(containers data.UpdateReport) {
             fmt.Printf("- %s: %s\n", containerId(update.Definition), update.Definition.Version.String())
         }
     }
+    if len(containers.Frozen) > 0 {
+        fmt.Println("\nFrozen Containers:")
+        for _, definition := range containers.Frozen {
+            fmt.Printf("- %s: %s\n", containerId(definition), definition.Version.String())
+        }
+    }
     if len(containers.Errors) > 0 {
         fmt.Println("\nErrors:")
         for _, err := range containers.Errors {
             fmt.Printf("- %s [%s]: %v\n", errorId(err), err.Stage, err.Err)
         }
     }
-    fmt.Printf("\nOutdated: %d | Up to Date: %d | Errors: %d | Total: %d\n", len(containers.Outdated), len(containers.Updated), len(containers.Errors), len(containers.Errors)+len(containers.Updated)+len(containers.Outdated))
+    total := len(containers.Errors) + len(containers.Updated) + len(containers.Outdated) + len(containers.Frozen)
+    fmt.Printf("\nOutdated: %d | Up to Date: %d | Frozen: %d | Errors: %d | Total: %d\n", len(containers.Outdated), len(containers.Updated), len(containers.Frozen), len(containers.Errors), total)
 }
