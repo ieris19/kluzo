@@ -59,6 +59,9 @@ type Update struct {
     Definition    ContainerDefinition
     LatestVersion SemanticVersion
     Upgradeable   bool
+    // Pinned is true when no update is available within the version pin,
+    // but a newer version exists outside of it (e.g. a new major release).
+    Pinned bool
 }
 
 type Stage string

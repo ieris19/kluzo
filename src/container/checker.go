@@ -17,9 +17,19 @@ func CheckUpdate(definition data.ContainerDefinition) (data.Update, error) {
         return data.Update{}, err
     }
 
-    return data.Update{
+    update := data.Update{
         Definition:    definition,
         LatestVersion: latest,
         Upgradeable:   latest.GreaterThan(definition.Version),
-    }, nil
+    }
+
+    if !update.Upgradeable && (definition.Pin == data.PinMajor || definition.Pin == data.PinMinor) {
+        unpinned := definition
+        unpinned.Pin = data.PinChannel
+        if unconstrainedLatest, err := selectLatestTag(tags, unpinned); err == nil {
+            update.Pinned = unconstrainedLatest.GreaterThan(definition.Version)
+        }
+    }
+
+    return update, nil
 }

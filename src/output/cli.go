@@ -27,7 +27,11 @@ func ReportStdout(containers data.UpdateReport) {
     if len(containers.Updated) > 0 {
         fmt.Println("\nUp-to-date Containers:")
         for _, update := range containers.Updated {
-            fmt.Printf("- %s: %s\n", containerId(update.Definition), update.Definition.Version.String())
+            pinned := ""
+            if update.Pinned {
+                pinned = " (pinned)"
+            }
+            fmt.Printf("- %s: %s%s\n", containerId(update.Definition), update.Definition.Version.String(), pinned)
         }
     }
     if len(containers.Frozen) > 0 {

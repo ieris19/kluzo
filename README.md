@@ -34,6 +34,16 @@ section. The following options are supported at the current time:
   for the image repository (assuming the segments to be:
   `host/repository:tag@digest`). Must define a named group `name` while `host`,
   `user`, `tag` and `digest`are all optional.
+- `VersionPin`: determines how the current tag is matched against upstream 
+  tags. They're cumulative in the following order:
+  - `channel` (default): only the channel (`extra`) is pinned; any newer
+    version within that channel is considered an update.
+  - `major`: also restricts tags to the same major version, e.g. for
+    projects where crossing a major version requires manual intervention.
+  - `minor`: also restricts tags to the same minor version,
+    only patch releases are considered updates.
+  - `freeze`: the upstream registry is not checked at all; the container is
+    always reported as frozen at its current version.
 
 For `ImagePattern`, by convention, the sections are called `user` and `name`,
 however, OCI image names don't make such distinction. It's all a repository to
