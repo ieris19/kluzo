@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"git.ierislabs.dev/ieris19/update-link/data"
+	"git.ierislabs.dev/ieris19/update-link/internal/data"
 )
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}

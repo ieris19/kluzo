@@ -1,7 +1,7 @@
 package container
 
 import (
-	"git.ierislabs.dev/ieris19/update-link/data"
+	"git.ierislabs.dev/ieris19/update-link/internal/data"
 )
 
 func CheckUpdate(definition data.ContainerDefinition) (data.Update, error) {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"git.ierislabs.dev/ieris19/update-link/data"
-	"git.ierislabs.dev/ieris19/update-link/files"
+	"git.ierislabs.dev/ieris19/update-link/internal/data"
+	"git.ierislabs.dev/ieris19/update-link/internal/files"
 )
 
 func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {

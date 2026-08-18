@@ -1,8 +1,10 @@
 set default-list := true
 
-coverage-report := justfile_directory() / "coverage.out"
-compiled-binary := justfile_directory() / "update-link"
-development-config := justfile_directory() / "config/dev.toml"
+repo-root := justfile_directory()
+go-cmd := repo-root / "cmd/update-link"
+coverage-report := repo-root / "coverage.out"
+compiled-binary := repo-root / "update-link"
+development-config := repo-root / "config/dev.toml"
 
 [group('compiling')]
 clean:
@@ -10,7 +12,7 @@ clean:
 
 [group('compiling')]
 build: clean
-    go build -o {{compiled-binary}} .
+    go build -o {{compiled-binary}} {{go-cmd}}
 
 [group('compiling')]
 run: build
@@ -18,16 +20,16 @@ run: build
 
 [group('test')]
 test:
-    go test -cover ./...
+    go test -cover {{repo-root}}/...
 
 [group('test')]
 cover: clean
-    go test -coverprofile={{coverage-report}} ./...
+    go test -coverprofile={{coverage-report}} {{repo-root}}/...
     go tool cover -html={{coverage-report}}
 
 [group('housekeeping')]
 format:
-    go fmt ./...
+    go fmt {{repo-root}}/...
 
 [group('housekeeping')]
 fix-deps:

@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"testing"
 
-	"git.ierislabs.dev/ieris19/update-link/config"
-	"git.ierislabs.dev/ieris19/update-link/data"
+	"git.ierislabs.dev/ieris19/update-link/internal/config"
+	"git.ierislabs.dev/ieris19/update-link/internal/data"
 )
 
 // Formats parseImageInfo is expected to accept without error

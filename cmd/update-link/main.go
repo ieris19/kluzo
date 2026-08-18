@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"git.ierislabs.dev/ieris19/update-link/config"
-	"git.ierislabs.dev/ieris19/update-link/container"
-	"git.ierislabs.dev/ieris19/update-link/data"
-	"git.ierislabs.dev/ieris19/update-link/files"
-	"git.ierislabs.dev/ieris19/update-link/output"
-	"git.ierislabs.dev/ieris19/update-link/parser"
+	"git.ierislabs.dev/ieris19/update-link/internal/config"
+	"git.ierislabs.dev/ieris19/update-link/internal/container"
+	"git.ierislabs.dev/ieris19/update-link/internal/data"
+	"git.ierislabs.dev/ieris19/update-link/internal/files"
+	"git.ierislabs.dev/ieris19/update-link/internal/output"
+	"git.ierislabs.dev/ieris19/update-link/internal/parser"
 )
 
 func main() {

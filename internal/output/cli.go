@@ -3,7 +3,7 @@ package output
 import (
 	"fmt"
 
-	"git.ierislabs.dev/ieris19/update-link/data"
+	"git.ierislabs.dev/ieris19/update-link/internal/data"
 )
 
 func containerId(container data.ContainerDefinition) string {
