@@ -1,4 +1,4 @@
-module git.ierislabs.dev/update-link
+module git.ierislabs.dev/ieris19/update-link
 
 go 1.25.5
 

@@ -4,8 +4,8 @@ import (
     "regexp"
     "testing"
 
-    "git.ierislabs.dev/update-link/config"
-    "git.ierislabs.dev/update-link/data"
+    "git.ierislabs.dev/ieris19/update-link/config"
+    "git.ierislabs.dev/ieris19/update-link/data"
 )
 
 // Formats parseImageInfo is expected to accept without error
@@ -136,8 +136,8 @@ func TestParseImageInfoResolvesBuiltinHostAlias(t *testing.T) {
     // once this test is done to avoid leaking into other tests in this package.
     SetAliases(config.BuiltinAliases)
     defer SetAliases(nil)
-    
-    image :="docker.io/user/image:tag"
+
+    image := "docker.io/user/image:tag"
     want := data.ImageInfo{
         Host:   "registry-1.docker.io",
         Author: "user",

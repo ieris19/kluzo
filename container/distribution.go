@@ -4,7 +4,7 @@ import (
     "encoding/json"
     "fmt"
 
-    "git.ierislabs.dev/update-link/data"
+    "git.ierislabs.dev/ieris19/update-link/data"
 )
 
 type DistributionResponse struct {

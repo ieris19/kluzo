@@ -3,7 +3,7 @@ package parser
 import (
     "errors"
 
-    "git.ierislabs.dev/update-link/data"
+    "git.ierislabs.dev/ieris19/update-link/data"
 )
 
 var SupportedExtensions []string = []string{".container"}

@@ -1,24 +1,30 @@
-_default:
-    just --list
+set default-list := true
 
+[group('compiling')]
 clean:
     rm -f update-link coverage.out
 
+[group('compiling')]
 build: clean
-    go -C ./src build -o ../update-link .
+    go build -o update-link .
 
+[group('test')]
 test:
-    go -C ./src test -cover ./...
+    go test -cover ./...
 
+[group('test')]
 cover: clean
-    go -C ./src test -coverprofile=../coverage.out ./...
-    go -C ./src tool cover -html=../coverage.out
+    go test -coverprofile=coverage.out ./...
+    go tool cover -html=coverage.out
 
+[group('compiling')]
 run: build
-    ./update-link -config dev.toml
+    ./update-link -config config/dev.toml
 
+[group('housekeeping')]
 format:
-    go -C ./src fmt ./...
+    go fmt ./...
 
+[group('housekeeping')]
 fix-deps:
-    go -C ./src mod tidy
+    go mod tidy

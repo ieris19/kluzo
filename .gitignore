@@ -3,6 +3,6 @@
 .vscode
 
 # Project files
-/dev.toml
+config/dev.toml
 /coverage.out
 /update-link
