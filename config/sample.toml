@@ -1,5 +1,5 @@
 [scanner]
-# Directories to scan for Quadlet .container files (non-recursive)
+# Directories to scan for Quadlet .container files (recursive)
 directories = [
     "/etc/containers/systemd",
     "/home/user/.config/containers/systemd",

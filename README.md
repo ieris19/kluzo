@@ -1,8 +1,10 @@
 # UpdateLink
 
-A Podman-focused CLI tool that checks container versions in Quadlet `.container`
-files against their upstream registries and reports which containers have
-updates available.
+A CLI tool that checks container tags in file definitions against the upstream
+registries and reports which containers have updates available.
+
+The tool focuses mostly on Podman Quadlets for now (`.container`). Support for
+docker compose and other formats is planned in the future.
 
 ## Usage
 
@@ -10,43 +12,58 @@ updates available.
 update-link [--config /path/to/config.toml]
 ```
 
-The config file defaults to `/etc/update-link/config.toml` if `--config` is not
-specified.
-
 ## Configuration
 
-You can find an example of a configuration file in the repository called
-`sample.toml`. For further information, refer to the config package that manages
-the configuration.
+The configuration file is the source of many important settings, such as what
+directories to check for. The file is mandatory and is read by default from
+`/etc/update-link/config.toml`. This path can be overridden using `--config`
+which allows you to choose an arbitrary file.
+
+A sample configuration can be found at `config/sample.toml`. You can use it as a
+starting point.
+
+For further reference, please refer to the `config` package.
 
 ## Customized behavior
 
-For extensible, per image configuration of this tool's behavior, you can add
-special keys to your container definitions under the `[X-UpdateLink]`
-section. The following options are supported at the current time:
+A tool trying to manage container configuration is bound to hit an image that
+does not conform to standards or needs some sort of special treatment. This is
+achieved by adding custom attributes to the container definitions, allowing
+certain behaviors to be altered on a per-image basis.
 
-- `TagPattern`: for tags that aren't standard semantic versions. Must define
-  named groups `major` and `minor`; `patch` and `extra` are optional but
-  accounted for, `extra` will be used for channel pinning, the rest is just
-  semantic versioning.
-- `ImagePattern`: if your registry cannot be parsed by the default regex, you
-  can override this. For example, registries that demand more than 2 segments
-  for the image repository (assuming the segments to be:
-  `host/repository:tag@digest`). Must define a named group `name` while `host`,
-  `user`, `tag` and `digest`are all optional.
-- `VersionPin`: determines how the current tag is matched against upstream 
-  tags. They're cumulative in the following order:
-  - `channel` (default): only the channel (`extra`) is pinned; any newer
-    version within that channel is considered an update.
-  - `major`: also restricts tags to the same major version, e.g. for
-    projects where crossing a major version requires manual intervention.
-  - `minor`: also restricts tags to the same minor version,
-    only patch releases are considered updates.
-  - `freeze`: the upstream registry is not checked at all; the container is
-    always reported as frozen at its current version.
+As of right now, the following keys are respected under the `[X-UpdateLink]`
+in Quadlet files:
+
+- `TagPattern`: Must define 2 named groups `major` and `minor`; `patch` and
+  `extra` are optional, the rest correspond to semantic versioning, `extra`
+  will be used for channel pinning. This only fixes tags that are oddly
+  formatted or don't parse with the standard regex, and still requires the
+  images to be tagged using semantic version.
+    - For example, an image tagged with dates can use
+      `^(?P<major>\d+)-(?P<minor>\d+)(?:-(?P<patch>\d+))?$` and match
+      `2026-08-18` as a semantic version, `18-08-2026` and `08-18-2026`
+      could also match with small tweaks.
+- `ImagePattern`: the base assumption is that images will have a stable form,
+  that is `host/user/name:tag@digest`, when that assumption does not apply, you
+  can supply your own regex, recognizing the following named groups:
+  `host`, `user`, `name`, `tag`, `digest`. Only `name` is mandatory, but without
+  `tag`, an error will be reported. Some repositories nest images in deeper or
+  shallower URLs, so feel free to adjust to match your registries.
+- `VersionPin`: defines a cumulative pinning policy. The base strategy applies
+  at all times, stricter formats also check the looser formats. In order, from
+  looser to stricter, the following are the allowed policies:
+    - `channel` **(default)**: only the "channel" (`extra`) is pinned; any newer
+      version within that channel is considered an update. E.g. `1.0.0-alpine`
+      will only match other tags ending in `-alpine`.
+    - `major`: also restricts tags to the same major version, useful for
+      projects where crossing a major version requires manual intervention.
+    - `minor`: also restricts tags to the same minor version, only patch
+      releases are suggested as possible updates.
+    - `freeze`: the upstream registry is not checked at all; the container is
+      always reported as frozen at its current version.
 
 For `ImagePattern`, by convention, the sections are called `user` and `name`,
-however, OCI image names don't make such distinction. It's all a repository to
+however, OCI image names don't make such distinction. It's all a "repository" to
 the container runtime. Thus, when `user` is absent, name must be the full
 repository path, if `user` is present, then this project constructs the
 repository path as `user/name`. If this convention does not apply to your
@@ -59,8 +76,9 @@ segment.
 - Upstream registries must expose the [OCI Distribution][spec]
   tag-listing API.
 - Aliases may be needed for registries whose public hostname differs from their
-  API endpoint (e.g. `docker.io`).
+  API endpoint (e.g. `docker.io` is a hardcoded alias to
+  `registry-1.docker.io`).
 - Versions must be valid semantic version tags. Digest-pinned, textual tags or
-  untagged images are treated as non-fatal errors.
+  untagged images are treated as non-fatal errors for now.
 
 [spec]: https://github.com/opencontainers/distribution-spec
