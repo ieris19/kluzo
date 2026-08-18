@@ -80,6 +80,17 @@ segment.
   `registry-1.docker.io`).
 - Versions must be valid semantic version tags. Digest-pinned, textual tags or
   untagged images are treated as non-fatal errors for now.
+- Channel suffixes (e.g. `-rc1`, `-alpine`, `-trixie`) are compared opaquely,
+  they're not ordered against each other. This is a gotcha that isn't obvious in
+  certain scenarios:
+    - `1.0.0-rc1` and `1.0.0-rc2` are entirely different channels, `-rc2`
+      will never be considered an updated to `-rc1`.
+    - A bare release (`1.0.0`) is just another channel compared to a suffixed
+      tag (`1.0.0-rc1`), no different than what  `-alpine` vs `-trixie`
+      would be.
+    - If you really need to override this behavior, perhaps you can try and
+      define a custom pattern that ignores extra, or includes the release
+      candidate as a patch version.
 
 ## License
 
