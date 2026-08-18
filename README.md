@@ -81,4 +81,12 @@ segment.
 - Versions must be valid semantic version tags. Digest-pinned, textual tags or
   untagged images are treated as non-fatal errors for now.
 
+## License
+
+Copyright (C) 2026 ieris19
+
+This project is licensed under the GPL-3.0-only.
+
+See [`LICENSE`](LICENSE) for the full text.
+
 [spec]: https://github.com/opencontainers/distribution-spec
