@@ -2,7 +2,13 @@
 .idea
 .vscode
 
-# Project files
+# Development artifacts
 config/dev.toml
+mise.local.toml
+
+# Project artifacts
 /coverage.out
 /update-link
+
+# CI artifacts
+.ci/bin/

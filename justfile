@@ -6,31 +6,72 @@ coverage-report := repo-root / "coverage.out"
 compiled-binary := repo-root / "update-link"
 development-config := repo-root / "config/dev.toml"
 
-[group('compiling')]
+# Delete build artifacts from the repository
+[group: 'housekeeping']
 clean:
     rm -f {{compiled-binary}} {{coverage-report}}
 
-[group('compiling')]
+# Reconcile go.mod and go.sum with the code's actual imports
+[group: 'housekeeping']
+fix-deps:
+    go mod tidy
+
+# Build the app into an executable
+[group: 'compiling']
 build: clean
     go build -o {{compiled-binary}} {{go-cmd}}
 
-[group('compiling')]
+# Execute the app using the development configuration
+[group: 'compiling']
 run: build
     {{compiled-binary}} -config {{development-config}}
 
-[group('test')]
+# Run the test suite with coverage
+[group: 'test']
 test:
     go test -cover {{repo-root}}/...
 
-[group('test')]
+# Run the tests and open an HTML coverage report
+[group: 'test']
 cover: clean
     go test -coverprofile={{coverage-report}} {{repo-root}}/...
     go tool cover -html={{coverage-report}}
 
-[group('housekeeping')]
+# Apply standard Go formatting to all files in the repo
+[group: 'ci']
 format:
     go fmt {{repo-root}}/...
 
-[group('housekeeping')]
-fix-deps:
-    go mod tidy
+# Check whether all files in the repo are correctly formatted
+[group: 'ci']
+format-check:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    # gofmt does not fail, so we read the output and define our own fail-state
+    unformatted="$(gofmt -l {{repo-root}})"
+    if [ -n "$unformatted" ]; then
+      echo "The following files are not gofmt'd:"
+      echo "$unformatted"
+      exit 1
+    fi
+
+# Run static analysis across the whole repo
+[group: 'ci']
+static-check:
+    go vet {{repo-root}}/...
+
+# Run the continuous integration pipeline
+[group: 'ci']
+ci: format-check static-check test
+
+# If a forgejo-runner is locally available, check that the pipeline is correctly configured
+[group: 'ci']
+ci-check:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    if command -v forgejo-runner > /dev/null 2>&1; then
+      forgejo-runner exec -i docker.io/library/golang:1.26-trixie --detect-event --dryrun
+    else
+      echo "No local CI runner"
+      exit 1
+    fi

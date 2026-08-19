@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [prime]
+
+jobs:
+  integration:
+    runs-on: go
+    steps:
+      - name: Checkout
+        # The following checkout only works because of the on.push target, saves on installing Node for this job
+        run: |
+          git init .
+          git remote add origin "${{ forgejo.server_url }}/${{ forgejo.repository }}.git"
+          git -c http.extraHeader="Authorization: Bearer ${{ forgejo.token }}" fetch --depth 1 origin "${{ forgejo.sha }}"
+          git checkout FETCH_HEAD
+      - name: Setup
+        run: sh .ci/setup.sh
+      - name: CI
+        run: just ci
