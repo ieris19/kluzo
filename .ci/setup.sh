@@ -48,6 +48,8 @@ echo "${expected_sha}  ${MISE_BINARY}" | sha256sum -c -
 chmod +x "${MISE_BINARY}"
 rm -f "${CHECKSUMS}"
 
+# Unset GITHUB_TOKEN: it's actually a Forgejo Token for compat but it confuses tools:
+unset GITHUB_TOKEN
 # Pull all dependencies required by mise
 "${MISE_BINARY}" install
 
