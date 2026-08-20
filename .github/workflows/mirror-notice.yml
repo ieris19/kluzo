@@ -1,0 +1,24 @@
+name: mirror-notice
+
+on:
+  push:
+    branches: [ '**' ]
+  # Fallback manual trigger
+  workflow_dispatch:
+
+permissions:
+  # Important else the workflow token is read only
+  contents: write
+
+jobs:
+  notice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        # Pinning to main pulls the latest action, check git tags for snapshots
+      - uses: ieris19/mirror-notice@main
+        with:
+          # Where the canonical repo lives
+          canonical-url: https://git.ierislabs.dev
+          committer-name: github-actions[bot]
+          committer-email: 41898282+github-actions[bot]@users.noreply.github.com
