@@ -8,7 +8,7 @@ mise.local.toml
 
 # Project artifacts
 /coverage.out
-/update-link
+/kluzo
 
 # CI artifacts
 .ci/bin/

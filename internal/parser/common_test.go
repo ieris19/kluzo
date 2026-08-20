@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"testing"
 
-	"git.ierislabs.dev/ieris19/update-link/internal/config"
-	"git.ierislabs.dev/ieris19/update-link/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/config"
+	"git.ierislabs.dev/ieris19/kluzo/internal/data"
 )
 
 // Formats parseImageInfo is expected to accept without error
@@ -107,7 +107,7 @@ func TestParseImageInfoInvalidFormats(t *testing.T) {
 	}
 }
 
-// A caller-supplied pattern (the [X-UpdateLink] ImagePattern override
+// A caller-supplied pattern (the [X-Update] ImagePattern override
 func TestParseImageInfoCustomPattern(t *testing.T) {
 	pattern := regexp.MustCompile(`^(?P<host>[^/\s]*)/(?P<user>.*)/(?P<name>[^\s/:@]*):(?P<tag>[\w.-]*)$`)
 

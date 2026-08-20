@@ -1,4 +1,4 @@
-# UpdateLink
+# Kluzo
 
 A CLI tool that checks container tags in file definitions against the upstream
 registries and reports which containers have updates available.
@@ -9,14 +9,14 @@ docker compose and other formats is planned in the future.
 ## Usage
 
 ```
-update-link [--config /path/to/config.toml]
+kluzo [--config /path/to/config.toml]
 ```
 
 ## Configuration
 
 The configuration file is the source of many important settings, such as what
 directories to check for. The file is mandatory and is read by default from
-`/etc/update-link/config.toml`. This path can be overridden using `--config`
+`/etc/kluzo/config.toml`. This path can be overridden using `--config`
 which allows you to choose an arbitrary file.
 
 A sample configuration can be found at `config/sample.toml`. You can use it as a
@@ -31,7 +31,7 @@ does not conform to standards or needs some sort of special treatment. This is
 achieved by adding custom attributes to the container definitions, allowing
 certain behaviors to be altered on a per-image basis.
 
-As of right now, the following keys are respected under the `[X-UpdateLink]`
+As of right now, the following keys are respected under the `[X-Update]`
 in Quadlet files:
 
 - `TagPattern`: Must define 2 named groups `major` and `minor`; `patch` and

@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"git.ierislabs.dev/ieris19/update-link/internal/config"
-	"git.ierislabs.dev/ieris19/update-link/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/config"
+	"git.ierislabs.dev/ieris19/kluzo/internal/data"
 )
 
 func isSupportedExtension(extension string, allowedExtensions []string) bool {

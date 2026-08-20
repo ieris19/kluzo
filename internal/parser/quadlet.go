@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"git.ierislabs.dev/ieris19/update-link/internal/data"
-	"git.ierislabs.dev/ieris19/update-link/internal/files"
+	"git.ierislabs.dev/ieris19/kluzo/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/files"
 )
 
 func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
@@ -18,12 +18,12 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
 	// Parse the quadlet content to extract container information
 	sections := files.ParseFileKeyValue(content, "=")
 	container := sections["Container"]
-	updateLink := sections["X-UpdateLink"]
+	update := sections["X-Update"]
 
 	containerName := container["ContainerName"]
 
 	var imagePattern *regexp.Regexp
-	if pattern := updateLink["ImagePattern"]; pattern != "" {
+	if pattern := update["ImagePattern"]; pattern != "" {
 		re, err := regexp.Compile(pattern)
 		if err != nil {
 			return data.ContainerDefinition{}, fmt.Errorf("invalid image pattern for %s: %w", containerName, err)
@@ -45,7 +45,7 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
 	}
 
 	var tagPattern *regexp.Regexp
-	if pattern := updateLink["TagPattern"]; pattern != "" {
+	if pattern := update["TagPattern"]; pattern != "" {
 		re, err := regexp.Compile(pattern)
 		if err != nil {
 			return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %w", containerName, err)
@@ -61,7 +61,7 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
 		return data.ContainerDefinition{}, err
 	}
 
-	pin := data.PinLevel(updateLink["VersionPin"])
+	pin := data.PinLevel(update["VersionPin"])
 	if !pin.Valid() {
 		return data.ContainerDefinition{}, fmt.Errorf("invalid pin level %q for %s", pin, containerName)
 	}

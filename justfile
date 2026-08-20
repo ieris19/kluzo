@@ -1,9 +1,9 @@
 set default-list := true
 
 repo-root := justfile_directory()
-go-cmd := repo-root / "cmd/update-link"
+go-cmd := repo-root / "cmd/kluzo"
 coverage-report := repo-root / "coverage.out"
-compiled-binary := repo-root / "update-link"
+compiled-binary := repo-root / "kluzo"
 development-config := repo-root / "config/dev.toml"
 
 # Delete build artifacts from the repository

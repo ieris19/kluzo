@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"git.ierislabs.dev/ieris19/update-link/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/data"
 )
 
 func determineAuthor(user string, host string) string {

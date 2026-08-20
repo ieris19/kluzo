@@ -25,7 +25,7 @@ var BuiltinAliases = map[string]string{
 }
 
 func defaultConfigPath() string {
-	return "/etc/update-link/config.toml"
+	return "/etc/kluzo/config.toml"
 }
 
 func Load(path string) (Config, error) {

@@ -1,4 +1,4 @@
-module git.ierislabs.dev/ieris19/update-link
+module git.ierislabs.dev/ieris19/kluzo
 
 go 1.26
 

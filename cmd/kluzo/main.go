@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"git.ierislabs.dev/ieris19/update-link/internal/config"
-	"git.ierislabs.dev/ieris19/update-link/internal/container"
-	"git.ierislabs.dev/ieris19/update-link/internal/data"
-	"git.ierislabs.dev/ieris19/update-link/internal/files"
-	"git.ierislabs.dev/ieris19/update-link/internal/output"
-	"git.ierislabs.dev/ieris19/update-link/internal/parser"
+	"git.ierislabs.dev/ieris19/kluzo/internal/config"
+	"git.ierislabs.dev/ieris19/kluzo/internal/container"
+	"git.ierislabs.dev/ieris19/kluzo/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/files"
+	"git.ierislabs.dev/ieris19/kluzo/internal/output"
+	"git.ierislabs.dev/ieris19/kluzo/internal/parser"
 )
 
 func main() {
