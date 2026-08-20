@@ -38,12 +38,12 @@ cover: clean
     go tool cover -html={{coverage-report}}
 
 # Apply standard Go formatting to all files in the repo
-[group: 'ci']
+[group: 'quality']
 format:
     go fmt {{repo-root}}/...
 
 # Check whether all files in the repo are correctly formatted
-[group: 'ci']
+[group: 'quality']
 format-check:
     #!/usr/bin/env bash
     set -euxo pipefail
@@ -56,7 +56,7 @@ format-check:
     fi
 
 # Run static analysis across the whole repo
-[group: 'ci']
+[group: 'quality']
 static-check:
     go vet {{repo-root}}/...
 
