@@ -18,7 +18,7 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
 	// Parse the quadlet content to extract container information
 	sections := files.ParseFileKeyValue(content, "=")
 	container := sections["Container"]
-	update := sections["X-Update"]
+	update := sections["X-Kluzo"]
 
 	containerName := container["ContainerName"]
 

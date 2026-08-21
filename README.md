@@ -31,7 +31,7 @@ does not conform to standards or needs some sort of special treatment. This is
 achieved by adding custom attributes to the container definitions, allowing
 certain behaviors to be altered on a per-image basis.
 
-As of right now, the following keys are respected under the `[X-Update]`
+As of right now, the following keys are respected under the `[X-Kluzo]`
 in Quadlet files:
 
 - `TagPattern`: Must define 2 named groups `major` and `minor`; `patch` and

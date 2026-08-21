@@ -107,7 +107,7 @@ func TestParseImageInfoInvalidFormats(t *testing.T) {
 	}
 }
 
-// A caller-supplied pattern (the [X-Update] ImagePattern override
+// A caller-supplied pattern (via config override)
 func TestParseImageInfoCustomPattern(t *testing.T) {
 	pattern := regexp.MustCompile(`^(?P<host>[^/\s]*)/(?P<user>.*)/(?P<name>[^\s/:@]*):(?P<tag>[\w.-]*)$`)
 
