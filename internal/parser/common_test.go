@@ -111,7 +111,7 @@ func TestParseImageInfoInvalidFormats(t *testing.T) {
 func TestParseImageInfoCustomPattern(t *testing.T) {
 	pattern := regexp.MustCompile(`^(?P<host>[^/\s]*)/(?P<user>.*)/(?P<name>[^\s/:@]*):(?P<tag>[\w.-]*)$`)
 
-	t.Run("accepts custom patter for parsing an image", func(t *testing.T) {
+	t.Run("accepts custom pattern for parsing an image", func(t *testing.T) {
 		got, err := parseImageInfo("gcr.io/project/team/image:1.0", pattern)
 		if err != nil {
 			t.Fatalf("parseImageInfo with custom pattern returned unexpected error: %v", err)
