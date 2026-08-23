@@ -8,14 +8,13 @@ docker compose and other formats is planned in the future.
 
 ## Name
 
-Kluzo (/ˈkluzo/, [wiktionary](https://en.wiktionary.org/wiki/kluzo)) is the
-Esperanto word for a canal lock and sluice. Like a boat at a lock, containers
-are slowly raised to match upstream. However, the English word "lock" means
-something entirely different and opposite at a glance. On the other hand,
-"sluice" is already a name saturated with other tools. Looking beyond English,
-many European languages happen to share similar words for these two concepts, so
-the Esperanto word for it made sense as a neutral, short, and easily
-pronounceable option.
+Kluzo (/ˈkluzo/, see [Wiktionary][kluzo-dict]) is the Esperanto word for a canal
+lock and sluice. Like a boat at a lock, containers are slowly raised to match
+upstream. However, the English word "lock" means something entirely different
+and opposite at a glance. On the other hand, "sluice" is already a name
+saturated with other tools. Looking beyond English, many European languages
+happen to share similar words for these two concepts, so the Esperanto word for
+it made sense as a neutral, short, and easily pronounceable option.
 
 ## Usage
 
@@ -117,3 +116,4 @@ See [`LICENSE`](LICENSE) for the full text.
 
 [spec]: https://github.com/opencontainers/distribution-spec
 [filepath-match]: https://pkg.go.dev/path/filepath#Match
+[kluzo-dict]: https://en.wiktionary.org/wiki/kluzo
