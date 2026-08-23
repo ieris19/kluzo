@@ -9,7 +9,7 @@ import (
 	"git.ierislabs.dev/ieris19/kluzo/internal/files"
 )
 
-func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
+func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR error) {
 	// Read the file content
 	content, err := data.ReadFileContent(file.Path)
 	if err != nil {
@@ -27,6 +27,12 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
 		unitName := strings.TrimSuffix(file.Name, file.Extension)
 		containerName = "systemd-" + unitName
 	}
+	// Best-effort to provide at least the name even if the parser fails
+	defer func() {
+		if errR != nil {
+			def.Name = containerName
+		}
+	}()
 
 	var imagePattern *regexp.Regexp
 	if pattern := update["ImagePattern"]; pattern != "" {

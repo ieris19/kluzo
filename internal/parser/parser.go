@@ -29,6 +29,7 @@ func ParseContainerFiles(file []data.FileEntry) ([]data.ContainerDefinition, []d
 		if err != nil {
 			errs = append(errs, data.ContainerError{
 				File:  f,
+				Name:  container.Name,
 				Stage: data.ParseStage,
 				Err:   err,
 			})
