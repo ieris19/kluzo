@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
 	"git.ierislabs.dev/ieris19/kluzo/internal/files"
@@ -21,6 +22,11 @@ func parseQuadletFile(file data.FileEntry) (data.ContainerDefinition, error) {
 	update := sections["X-Kluzo"]
 
 	containerName := container["ContainerName"]
+	if containerName == "" {
+		// ContainerName= is optional. Podman falls back to systemd-<unitname>
+		unitName := strings.TrimSuffix(file.Name, file.Extension)
+		containerName = "systemd-" + unitName
+	}
 
 	var imagePattern *regexp.Regexp
 	if pattern := update["ImagePattern"]; pattern != "" {
