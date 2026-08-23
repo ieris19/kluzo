@@ -106,9 +106,7 @@ segment.
 
 ## License
 
-Copyright (C) 2026 ieris19
-
-This project is licensed under the GPL-3.0-only.
+This project is licensed under the MIT License.
 
 See [`LICENSE`](LICENSE) for the full text.
 
