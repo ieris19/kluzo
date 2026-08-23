@@ -37,10 +37,18 @@ func GetAllFiles(settings config.ScannerConfig, allowedExtensions []string) []da
 				fmt.Printf("Error accessing %s: %v\n", path, err)
 				return nil
 			}
+			// Patterns match against the path relative to the scan root
+			rel, relErr := filepath.Rel(dir, path)
+			if relErr != nil {
+				rel = path
+			}
 			if d.IsDir() {
-				if path != dir && isExcluded(d.Name(), settings.Exclude) {
+				if path != dir && isExcluded(rel, settings.Exclude) {
 					return fs.SkipDir
 				}
+				return nil
+			}
+			if isExcluded(rel, settings.Exclude) {
 				return nil
 			}
 			if isSupportedExtension(filepath.Ext(d.Name()), allowedExtensions) {

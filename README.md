@@ -33,6 +33,11 @@ which allows you to choose an arbitrary file.
 A sample configuration can be found at `config/sample.toml`. You can use it as a
 starting point.
 
+`scanner.exclude` skips files and directories that match the given patterns.
+Patterns are relative to each `scanner.directories` entry, and use
+[`filepath.Match`][filepath-match] under the hood, with its corresponding
+syntax.
+
 For further reference, please refer to the `config` package.
 
 ## Customized behavior
@@ -111,3 +116,4 @@ This project is licensed under the MIT License.
 See [`LICENSE`](LICENSE) for the full text.
 
 [spec]: https://github.com/opencontainers/distribution-spec
+[filepath-match]: https://pkg.go.dev/path/filepath#Match

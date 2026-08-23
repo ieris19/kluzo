@@ -5,9 +5,11 @@ directories = [
     "/home/user/.config/containers/systemd",
 ]
 
+# Files and directories to skip, relative to each scan root
+# Uses filepath.Match glob syntax (no recursive "**")
+exclude = []
+
 [registry.aliases]
-# Built-in aliases are always applied and do not need to be listed here.
-# Built-in: "docker.io" = "registry-1.docker.io"
-#
-# Add custom aliases below if a registry hostname redirects to another:
-# "old-registry.example.com" = "new-registry.example.com"
+# The following alias is built in and always enforced
+# Use it as an example of the expected syntax
+# "docker.io" = "registry-1.docker.io"
