@@ -24,7 +24,11 @@ func main() {
 	}
 
 	parser.SetAliases(cfg.Registry.Aliases)
-	containerFiles := files.GetAllFiles(cfg.Scanner, parser.SupportedExtensions)
+	containerFiles, err := files.GetAllFiles(cfg.Scanner, parser.SupportedExtensions)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+
+	}
 	containerDefinitions, parseErrors := parser.ParseContainerFiles(containerFiles)
 	// Print parsed container definitions
 	cntReport := data.UpdateReport{
