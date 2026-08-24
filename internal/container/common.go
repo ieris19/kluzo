@@ -21,6 +21,9 @@ type TagFetcher interface {
 }
 
 func selectLatestTag(tags []string, definition data.ContainerDefinition) (data.SemanticVersion, error) {
+	if definition.Pin == data.PinFreeze {
+		return data.SemanticVersion{}, fmt.Errorf("cannot select a tag for a frozen container")
+	}
 	current := definition.Version
 	tagPattern := definition.TagPattern
 	var candidates []data.SemanticVersion
@@ -35,13 +38,14 @@ func selectLatestTag(tags []string, definition data.ContainerDefinition) (data.S
 			}
 		}
 		v, err := data.ParseSemanticVersion(tag, tagPattern)
+		// A looser rule is always a subset of the restrictions in a stricter rule
 		if err != nil || v.Extra != current.Extra {
 			continue
 		}
-		if definition.Pin == data.PinMajor && v.Major != current.Major {
+		if definition.Pin >= data.PinMajor && v.Major != current.Major {
 			continue
 		}
-		if definition.Pin == data.PinMinor && (v.Major != current.Major || v.Minor != current.Minor) {
+		if definition.Pin >= data.PinMinor && (v.Minor != current.Minor) {
 			continue
 		}
 		candidates = append(candidates, v)

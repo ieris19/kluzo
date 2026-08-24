@@ -23,26 +23,49 @@ func ValidateImagePattern(re *regexp.Regexp) error {
 	return fmt.Errorf("image pattern must define a named group 'name'")
 }
 
-type PinLevel string
+type PinLevel int
 
 const (
-	// PinChannel is the default: only tags matching the current channel (Extra)
-	PinChannel PinLevel = "channel"
-	// PinMajor additionally only considers tags sharing the current Major version.
-	PinMajor PinLevel = "major"
-	// PinMinor additionally only considers tags sharing the current Major.Minor version.
-	PinMinor PinLevel = "minor"
 	// PinFreeze skips the upstream check entirely.
-	PinFreeze PinLevel = "freeze"
+	// Deliberately outside the order below: frozen containers should never compare
+	PinFreeze PinLevel = -1
+	// PinChannel is the default: only tags matching the current channel (Extra)
+	PinChannel PinLevel = 0
+	// PinMajor additionally only considers tags sharing the current Major version.
+	PinMajor PinLevel = 1
+	// PinMinor additionally only considers tags sharing the current Major.Minor version.
+	PinMinor PinLevel = 2
 )
 
-// Empty string represents an omitted Pin key, defaulting to PinChannel.
-func (p PinLevel) Valid() bool {
+func (p PinLevel) String() string {
 	switch p {
-	case "", PinChannel, PinMajor, PinMinor, PinFreeze:
-		return true
+	case PinFreeze:
+		return "freeze"
+	case PinChannel:
+		return "channel"
+	case PinMajor:
+		return "major"
+	case PinMinor:
+		return "minor"
 	default:
-		return false
+		return "invalid"
+	}
+}
+
+// Parses the PinLevel string into its corresponding enum value.
+func ParsePinLevel(s string) (PinLevel, error) {
+	switch s {
+	// Empty string represents an omitted Pin key, defaulting to PinChannel.
+	case "", "channel":
+		return PinChannel, nil
+	case "major":
+		return PinMajor, nil
+	case "minor":
+		return PinMinor, nil
+	case "freeze":
+		return PinFreeze, nil
+	default:
+		return 0, fmt.Errorf("invalid pin level %q", s)
 	}
 }
 

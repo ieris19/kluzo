@@ -72,12 +72,9 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 		return data.ContainerDefinition{}, fmt.Errorf("invalid version for %s: %v", containerName, err)
 	}
 
-	pin := data.PinLevel(update["VersionPin"])
-	if !pin.Valid() {
-		return data.ContainerDefinition{}, fmt.Errorf("invalid pin level %q for %s", pin, containerName)
-	}
-	if pin == "" {
-		pin = data.PinChannel
+	pin, err := data.ParsePinLevel(update["VersionPin"])
+	if err != nil {
+		return data.ContainerDefinition{}, fmt.Errorf("%v for %s", err, containerName)
 	}
 
 	return data.ContainerDefinition{
