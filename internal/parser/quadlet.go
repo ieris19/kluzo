@@ -13,7 +13,7 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 	// Read the file content
 	content, err := data.ReadFileContent(file.Path)
 	if err != nil {
-		return data.ContainerDefinition{}, err
+		return data.ContainerDefinition{}, fmt.Errorf("could not read %s: %v", file.Path, err)
 	}
 
 	// Parse the quadlet content to extract container information
@@ -38,17 +38,17 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 	if pattern := update["ImagePattern"]; pattern != "" {
 		re, err := regexp.Compile(pattern)
 		if err != nil {
-			return data.ContainerDefinition{}, fmt.Errorf("invalid image pattern for %s: %w", containerName, err)
+			return data.ContainerDefinition{}, fmt.Errorf("invalid image pattern for %s: %v", containerName, err)
 		}
 		if err := data.ValidateImagePattern(re); err != nil {
-			return data.ContainerDefinition{}, fmt.Errorf("invalid image pattern for %s: %w", containerName, err)
+			return data.ContainerDefinition{}, fmt.Errorf("invalid image pattern for %s: %v", containerName, err)
 		}
 		imagePattern = re
 	}
 
 	imageInfo, err := parseImageInfo(container["Image"], imagePattern)
 	if err != nil {
-		return data.ContainerDefinition{}, err
+		return data.ContainerDefinition{}, fmt.Errorf("invalid image for %s: %v", containerName, err)
 	}
 
 	if imageInfo.Digest != "" || imageInfo.Tag == "" {
@@ -59,17 +59,17 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 	if pattern := update["TagPattern"]; pattern != "" {
 		re, err := regexp.Compile(pattern)
 		if err != nil {
-			return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %w", containerName, err)
+			return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %v", containerName, err)
 		}
 		if err := data.ValidateTagPattern(re); err != nil {
-			return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %w", containerName, err)
+			return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %v", containerName, err)
 		}
 		tagPattern = re
 	}
 
 	semver, err := data.ParseSemanticVersion(imageInfo.Tag, tagPattern)
 	if err != nil {
-		return data.ContainerDefinition{}, err
+		return data.ContainerDefinition{}, fmt.Errorf("invalid version for %s: %v", containerName, err)
 	}
 
 	pin := data.PinLevel(update["VersionPin"])

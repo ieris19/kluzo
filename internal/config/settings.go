@@ -36,12 +36,12 @@ func Load(path string) (Config, error) {
 
 	var cfg Config
 	if _, err := toml.DecodeFile(path, &cfg); err != nil {
-		return Config{}, fmt.Errorf("could not load config from %s: %w", path, err)
+		return Config{}, fmt.Errorf("could not load config from %s: %v", path, err)
 	}
 	// Validate the patterns on load so we can safely ignore ErrBadPattern later
 	for _, pattern := range cfg.Scanner.Exclude {
 		if _, err := filepath.Match(pattern, ""); err != nil {
-			return Config{}, fmt.Errorf("invalid exclude pattern %q: %w", pattern, err)
+			return Config{}, fmt.Errorf("invalid exclude pattern %q: %v", pattern, err)
 		}
 	}
 	merged := make(map[string]string)

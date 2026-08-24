@@ -139,12 +139,12 @@ func fetchAuthorization(targetURL string, challenge bearerChallenge) (string, er
 	}
 	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to build request for %s: %v", targetURL, err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to fetch URL %s: %v", targetURL, err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -152,7 +152,7 @@ func fetchAuthorization(targetURL string, challenge bearerChallenge) (string, er
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to read response body from %s: %v", targetURL, err)
 	}
 	return string(body), nil
 }
@@ -160,12 +160,12 @@ func fetchAuthorization(targetURL string, challenge bearerChallenge) (string, er
 func fetch(targetURL string) (string, error) {
 	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to build request for %s: %v", targetURL, err)
 	}
 	req.Header.Set("Accept", "application/json")
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to fetch URL %s: %v", targetURL, err)
 	}
 	defer resp.Body.Close()
 
@@ -185,7 +185,7 @@ func fetch(targetURL string) (string, error) {
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to read response body from %s: %v", targetURL, err)
 	}
 	return string(body), nil
 }
