@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/config"
@@ -12,12 +13,7 @@ import (
 )
 
 func isSupportedExtension(extension string, allowedExtensions []string) bool {
-	for _, ext := range allowedExtensions {
-		if ext == extension {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(allowedExtensions, extension)
 }
 
 func isExcluded(name string, excludePatterns []string) bool {
