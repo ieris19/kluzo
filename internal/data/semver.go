@@ -71,18 +71,18 @@ func ParseSemanticVersion(tag string, re *regexp.Regexp) (SemanticVersion, error
 	}
 	major, err := strconv.Atoi(match.Get("major"))
 	if err != nil {
-		return SemanticVersion{}, fmt.Errorf("tag '%s' has a non-numeric major version: %v", tag, err)
+		return SemanticVersion{}, fmt.Errorf("tag '%s' has an invalid major version: %v", tag, err)
 	}
 	minor, err := strconv.Atoi(match.Get("minor"))
 	if err != nil {
-		return SemanticVersion{}, fmt.Errorf("tag '%s' has a non-numeric minor version: %v", tag, err)
+		return SemanticVersion{}, fmt.Errorf("tag '%s' has an invalid minor version: %v", tag, err)
 	}
 	// patch is optional: empty capture (no match) means 0, anything else must be numeric
 	patch := 0
 	if raw := match.Get("patch"); raw != "" {
 		patch, err = strconv.Atoi(raw)
 		if err != nil {
-			return SemanticVersion{}, fmt.Errorf("tag '%s' has a non-numeric patch version: %v", tag, err)
+			return SemanticVersion{}, fmt.Errorf("tag '%s' has an invalid patch version: %v", tag, err)
 		}
 	}
 	return SemanticVersion{
