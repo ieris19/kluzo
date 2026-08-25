@@ -54,13 +54,13 @@ func selectLatestTag(tags []string, definition data.ContainerDefinition) (data.S
 		return data.SemanticVersion{}, fmt.Errorf("no matching tags found")
 	}
 	slices.SortFunc(candidates, func(a, b data.SemanticVersion) int {
-		if a.GreaterThan(b) {
-			return -1
+		c, err := a.Compare(b)
+		if err != nil {
+			// Should never error, since Extra should never differ at this point
+			// An error here means an assumed invariant here has been broken
+			panic("invariant violation: " + err.Error())
 		}
-		if a.LessThan(b) {
-			return 1
-		}
-		return 0
+		return -c // descending: latest first
 	})
 	return candidates[0], nil
 }

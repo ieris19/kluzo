@@ -25,24 +25,30 @@ func (sv SemanticVersion) String() string {
 	return fmt.Sprintf("%d.%d.%d%s", sv.Major, sv.Minor, sv.Patch, extra)
 }
 
-func (sv SemanticVersion) LessThan(other SemanticVersion) bool {
+// Compare returns -1(<), 0(=) or 1(>) comparing against another SemanticVersion
+// It will return error if the semantic version's "extra" differs
+func (sv SemanticVersion) Compare(other SemanticVersion) (int, error) {
+	if sv.Extra != other.Extra {
+		return 0, fmt.Errorf("cannot compare versions with different labels: %q vs %q", sv.Extra, other.Extra)
+	}
 	if sv.Major != other.Major {
-		return sv.Major < other.Major
+		return cmpInt(sv.Major, other.Major), nil
 	}
 	if sv.Minor != other.Minor {
-		return sv.Minor < other.Minor
+		return cmpInt(sv.Minor, other.Minor), nil
 	}
-	return sv.Patch < other.Patch
+	return cmpInt(sv.Patch, other.Patch), nil
 }
 
-func (sv SemanticVersion) GreaterThan(other SemanticVersion) bool {
-	if sv.Major != other.Major {
-		return sv.Major > other.Major
+func cmpInt(a, b int) int {
+	switch {
+	case a < b:
+		return -1
+	case a > b:
+		return 1
+	default:
+		return 0
 	}
-	if sv.Minor != other.Minor {
-		return sv.Minor > other.Minor
-	}
-	return sv.Patch > other.Patch
 }
 
 func (sv SemanticVersion) Equals(other SemanticVersion) bool {
