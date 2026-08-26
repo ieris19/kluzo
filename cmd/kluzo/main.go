@@ -8,7 +8,6 @@ import (
 	"git.ierislabs.dev/ieris19/kluzo/internal/config"
 	"git.ierislabs.dev/ieris19/kluzo/internal/container"
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
-	"git.ierislabs.dev/ieris19/kluzo/internal/files"
 	"git.ierislabs.dev/ieris19/kluzo/internal/output"
 	"git.ierislabs.dev/ieris19/kluzo/internal/parser"
 )
@@ -24,7 +23,7 @@ func main() {
 	}
 
 	parser.SetAliases(cfg.Registry.Aliases)
-	containerFiles, err := files.GetAllFiles(cfg.Scanner, parser.SupportedExtensions)
+	containerFiles, err := parser.GetAllFiles(cfg.Scanner, parser.SupportedExtensions)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 

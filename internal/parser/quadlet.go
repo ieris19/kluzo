@@ -6,18 +6,17 @@ import (
 	"strings"
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
-	"git.ierislabs.dev/ieris19/kluzo/internal/files"
 )
 
 func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR error) {
 	// Read the file content
-	content, err := files.ReadFileContent(file.Path)
+	content, err := ReadFileContent(file.Path)
 	if err != nil {
 		return data.ContainerDefinition{}, fmt.Errorf("could not read %s: %v", file.Path, err)
 	}
 
 	// Parse the quadlet content to extract container information
-	sections := files.ParseFileKeyValue(content, "=")
+	sections := ParseFileKeyValue(content, "=")
 	container := sections["Container"]
 	update := sections["X-Kluzo"]
 
