@@ -21,23 +21,27 @@ func resolveHostAlias(host string) string {
 	return host
 }
 
-func ParseContainerFiles(file []data.FileEntry) ([]data.ContainerDefinition, []data.ContainerError) {
+func ParseContainerFiles(file []data.FileEntry, report *data.UpdateReport) []data.ContainerDefinition {
 	var containers []data.ContainerDefinition
-	var errs []data.ContainerError
 	for _, f := range file {
 		container, err := ParseContainerFile(f)
 		if err != nil {
-			errs = append(errs, data.ContainerError{
+			cErr := data.ContainerError{
 				File:  f,
 				Name:  container.Name,
 				Stage: data.ParseStage,
 				Err:   err,
-			})
+			}
+			if errors.Is(err, data.ErrNotSemver) {
+				report.Skipped = append(report.Skipped, cErr)
+			} else {
+				report.Errors = append(report.Errors, cErr)
+			}
 			continue
 		}
 		containers = append(containers, container)
 	}
-	return containers, errs
+	return containers
 }
 
 func ParseContainerFile(file data.FileEntry) (data.ContainerDefinition, error) {

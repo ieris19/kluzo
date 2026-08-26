@@ -1,12 +1,16 @@
 package data
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/matcher"
 )
+
+// ErrNotSemver marks a tag that carries no version
+var ErrNotSemver = errors.New("not a valid semantic version")
 
 type SemanticVersion struct {
 	Major int
@@ -69,6 +73,12 @@ func ParseSemanticVersion(tag string, re *regexp.Regexp) (SemanticVersion, error
 	}
 	match, ok := regexMatcher.Match(tag)
 	if !ok {
+		// No digits at all: no pattern could ever turn this into a version (e.g. "latest"). Mark it so callers can treat
+		// Untrackable rather than a real error.
+		if !hasDigit(tag) {
+			return SemanticVersion{}, fmt.Errorf("tag '%s' is not a valid semantic version: %w", tag, ErrNotSemver)
+		}
+		// A tag with digits might still be a version in an unexpected shape, error to get user's attention
 		return SemanticVersion{}, fmt.Errorf("tag '%s' is not a valid semantic version", tag)
 	}
 	major, err := strconv.Atoi(match.Get("major"))
@@ -94,6 +104,15 @@ func ParseSemanticVersion(tag string, re *regexp.Regexp) (SemanticVersion, error
 		Extra: match.Get("extra"),
 		Raw:   tag,
 	}, nil
+}
+
+func hasDigit(s string) bool {
+	for _, ch := range s {
+		if ch >= '0' && ch <= '9' {
+			return true
+		}
+	}
+	return false
 }
 
 func ValidateTagPattern(re *regexp.Regexp) error {

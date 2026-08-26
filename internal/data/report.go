@@ -16,6 +16,7 @@ type Stage string
 const (
 	ParseStage Stage = "parse"
 	CheckStage Stage = "check"
+	ScanStage  Stage = "scan"
 )
 
 type ContainerError struct {
@@ -40,5 +41,6 @@ type UpdateReport struct {
 	Outdated []Update
 	Updated  []Update
 	Frozen   []ContainerDefinition
+	Skipped  []ContainerError
 	Errors   []ContainerError
 }

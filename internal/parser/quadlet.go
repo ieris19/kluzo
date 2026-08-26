@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
@@ -12,7 +13,7 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 	// Read the file content
 	content, err := ReadFileContent(file.Path)
 	if err != nil {
-		return data.ContainerDefinition{}, fmt.Errorf("could not read %s: %v", file.Path, err)
+		return data.ContainerDefinition{}, fmt.Errorf("could not read: %v", err)
 	}
 
 	// Parse the quadlet content to extract container information
@@ -66,9 +67,22 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 		tagPattern = re
 	}
 
+	semverEnabled := true
+	if raw := update["SemVer"]; raw != "" {
+		semverEnabled, err = strconv.ParseBool(raw)
+		if err != nil {
+			return data.ContainerDefinition{}, fmt.Errorf("invalid SemVer value for %s: %v", containerName, err)
+		}
+	}
+	if !semverEnabled {
+		// User has explicitly declared this tag untrackable - don't even
+		// attempt a parse, regardless of what a pattern might coincidentally match.
+		return data.ContainerDefinition{}, fmt.Errorf("flagged as non-semantic versioning: %w", data.ErrNotSemver)
+	}
+
 	semver, err := data.ParseSemanticVersion(imageInfo.Tag, tagPattern)
 	if err != nil {
-		return data.ContainerDefinition{}, fmt.Errorf("invalid version for %s: %v", containerName, err)
+		return data.ContainerDefinition{}, err
 	}
 
 	pin, err := data.ParsePinLevel(update["VersionPin"])

@@ -40,12 +40,18 @@ func ReportStdout(containers data.UpdateReport) {
 			fmt.Printf("- %s: %s\n", containerId(definition), definition.Version.String())
 		}
 	}
+	if len(containers.Skipped) > 0 {
+		fmt.Println("\nSkipped Containers:")
+		for _, skipped := range containers.Skipped {
+			fmt.Printf("- %s: %v\n", errorId(skipped), skipped.Err)
+		}
+	}
 	if len(containers.Errors) > 0 {
 		fmt.Println("\nErrors:")
 		for _, err := range containers.Errors {
 			fmt.Printf("- %s [%s]: %v\n", errorId(err), err.Stage, err.Err)
 		}
 	}
-	total := len(containers.Errors) + len(containers.Updated) + len(containers.Outdated) + len(containers.Frozen)
-	fmt.Printf("\nOutdated: %d | Up to Date: %d | Frozen: %d | Errors: %d | Total: %d\n", len(containers.Outdated), len(containers.Updated), len(containers.Frozen), len(containers.Errors), total)
+	total := len(containers.Errors) + len(containers.Updated) + len(containers.Outdated) + len(containers.Frozen) + len(containers.Skipped)
+	fmt.Printf("\nOutdated: %d | Up to Date: %d | Frozen: %d | Skipped: %d | Errors: %d | Total: %d\n", len(containers.Outdated), len(containers.Updated), len(containers.Frozen), len(containers.Skipped), len(containers.Errors), total)
 }

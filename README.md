@@ -81,6 +81,11 @@ in Quadlet files:
       releases are suggested as possible updates.
     - `freeze`: the upstream registry is not checked at all; the container is
       always reported as frozen at its current version.
+- `SemVer`: **(default `true`)** set to `false` to declare that this
+  container's tag carries no comparable version (e.g. `latest`). Tags with no
+  digits at all are already detected automatically; this is for the cases the
+  automatic check can't tell apart from a genuinely malformed version. Reported
+  as skipped, not an error.
 
 For `ImagePattern`, by convention, the sections are called `user` and `name`.
 However, OCI image names don't make such distinction. It's all a "repository" to
@@ -98,8 +103,11 @@ segment.
 - Aliases may be needed for registries whose public hostname differs from their
   API endpoint (e.g. `docker.io` is a hardcoded alias to
   `registry-1.docker.io`).
-- Versions must be valid semantic version tags. Digest-pinned, textual tags and
-  untagged images are treated as non-fatal errors for now.
+- Versions must be valid semantic version tags. Digest-pinned and untagged
+  images are treated as errors. Purely textual tags (e.g. `latest`) are
+  skipped automatically rather than erroring; tags that mix digits and text
+  but still aren't valid semver (e.g. `rc1`) are treated as errors
+  unless `SemVer=false` is set (see "Customized behavior" above).
 - Channel suffixes (e.g. `-rc1`, `-alpine`, `-trixie`) are compared opaquely,
   they're not ordered against each other. This is a gotcha that isn't obvious in
   certain scenarios:
