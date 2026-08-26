@@ -25,9 +25,13 @@ kluzo [--config /path/to/config.toml]
 ## Configuration
 
 The configuration file is the source of many important settings, such as what
-directories to check for. The file is mandatory and is read by default from
-`/etc/kluzo/config.toml`. This path can be overridden using `--config`
-which allows you to choose an arbitrary file.
+directories to check for. The file is mandatory. Passing `--config` points
+the tool at an exact file that must exist. Without `--config`, the
+following paths are checked in order, and the first one that exists is used:
+
+1. `$XDG_CONFIG_HOME/kluzo/config.toml`, if `XDG_CONFIG_HOME` is set.
+2. `~/.config/kluzo/config.toml` otherwise.
+3. `/etc/kluzo/config.toml` as the system-wide fallback.
 
 A sample configuration can be found at `config/sample.toml`. You can use it as a
 starting point.

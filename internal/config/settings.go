@@ -2,7 +2,9 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -25,13 +27,37 @@ var BuiltinAliases = map[string]string{
 	"docker.io": "registry-1.docker.io",
 }
 
-func defaultConfigPath() string {
-	return "/etc/kluzo/config.toml"
+// lists config paths in priority order: XDG_CONFIG_HOME, $HOME/.config, /etc
+func defaultConfigCandidates() []string {
+	var candidates []string
+	if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
+		candidates = append(candidates, filepath.Join(xdg, "kluzo", "config.toml"))
+	} else if home, err := os.UserHomeDir(); err == nil {
+		candidates = append(candidates, filepath.Join(home, ".config", "kluzo", "config.toml"))
+	}
+	return append(candidates, "/etc/kluzo/config.toml")
+}
+
+// Pick the config to use, path if provided, or first existing default path
+func resolveConfigPath(path string) (string, error) {
+	var candidates []string
+	if path == "" {
+		candidates = defaultConfigCandidates()
+	} else {
+		candidates = []string{path}
+	}
+	for _, candidate := range candidates {
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate, nil
+		}
+	}
+	return "", fmt.Errorf("no config file found in %s", strings.Join(candidates, ", "))
 }
 
 func Load(path string) (Config, error) {
-	if path == "" {
-		path = defaultConfigPath()
+	path, err := resolveConfigPath(path)
+	if err != nil {
+		return Config{}, err
 	}
 
 	var cfg Config

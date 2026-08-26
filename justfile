@@ -30,7 +30,9 @@ run: build
 [group: 'compiling']
 install: build
     mkdir -p $HOME/.local/bin
-    install --mode 0770 {{compiled-binary}} $HOME/.local/bin
+    mkdir -p {{"${XDG_CONFIG_HOME:-$HOME/.config}" / project-name}}
+    install --mode 0750 {{compiled-binary}} $HOME/.local/bin
+    install --mode 0640 {{development-config}} {{"${XDG_CONFIG_HOME:-$HOME/.config}" / project-name / "config.toml"}}
 
 # Run the test suite with coverage
 [group: 'test']
