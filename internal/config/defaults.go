@@ -2,26 +2,11 @@ package config
 
 import (
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/BurntSushi/toml"
 )
-
-type Config struct {
-	Scanner  ScannerConfig  `toml:"scanner"`
-	Registry RegistryConfig `toml:"registry"`
-}
-
-type ScannerConfig struct {
-	Directories []string `toml:"directories"`
-	Exclude     []string `toml:"exclude"`
-}
-
-type RegistryConfig struct {
-	Aliases map[string]string `toml:"aliases"`
-}
 
 var BuiltinAliases = map[string]string{
 	"docker.io": "registry-1.docker.io",
@@ -54,30 +39,13 @@ func resolveConfigPath(path string) (string, error) {
 	return "", fmt.Errorf("no config file found in %s", strings.Join(candidates, ", "))
 }
 
-func Load(path string) (Config, error) {
-	path, err := resolveConfigPath(path)
-	if err != nil {
-		return Config{}, err
-	}
-
-	var cfg Config
-	if _, err := toml.DecodeFile(path, &cfg); err != nil {
-		return Config{}, fmt.Errorf("could not load config from %s: %v", path, err)
-	}
-	// Validate the patterns on load so we can safely ignore ErrBadPattern later
-	for _, pattern := range cfg.Scanner.Exclude {
-		if _, err := filepath.Match(pattern, ""); err != nil {
-			return Config{}, fmt.Errorf("invalid exclude pattern %q: %v", pattern, err)
-		}
-	}
+func applyDefaults(cfg Config) Config {
 	merged := make(map[string]string)
-	for k, v := range BuiltinAliases {
-		merged[k] = v
-	}
+	// Add defaults
+	maps.Copy(merged, BuiltinAliases)
 	// User-defined aliases overwrite the built-in aliases
-	for k, v := range cfg.Registry.Aliases {
-		merged[k] = v
-	}
+	maps.Copy(merged, cfg.Registry.Aliases)
+	// Overwrite user defined with merged set
 	cfg.Registry.Aliases = merged
-	return cfg, nil
+	return cfg
 }
