@@ -11,7 +11,7 @@ import (
 
 func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR error) {
 	// Read the file content
-	content, err := data.ReadFileContent(file.Path)
+	content, err := files.ReadFileContent(file.Path)
 	if err != nil {
 		return data.ContainerDefinition{}, fmt.Errorf("could not read %s: %v", file.Path, err)
 	}

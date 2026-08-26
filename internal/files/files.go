@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -111,4 +112,12 @@ func ParseFileKeyValue(content string, separator string) map[string]map[string]s
 		}
 	}
 	return sections
+}
+
+func ReadFileContent(filePath string) (string, error) {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
 }
