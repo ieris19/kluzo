@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+
+	"git.ierislabs.dev/ieris19/kluzo/internal/matcher"
 )
 
 type SemanticVersion struct {
@@ -58,14 +60,14 @@ func (sv SemanticVersion) Equals(other SemanticVersion) bool {
 		sv.Extra == other.Extra
 }
 
-var semverMatcher = NewNamedMatcher(regexp.MustCompile(`^v?(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?(?:-(?P<extra>.+))?$`))
+var semverMatcher = matcher.NewNamedMatcher(regexp.MustCompile(`^v?(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?(?:-(?P<extra>.+))?$`))
 
 func ParseSemanticVersion(tag string, re *regexp.Regexp) (SemanticVersion, error) {
-	matcher := semverMatcher
+	regexMatcher := semverMatcher
 	if re != nil {
-		matcher = NewNamedMatcher(re)
+		regexMatcher = matcher.NewNamedMatcher(re)
 	}
-	match, ok := matcher.Match(tag)
+	match, ok := regexMatcher.Match(tag)
 	if !ok {
 		return SemanticVersion{}, fmt.Errorf("tag '%s' is not a valid semantic version", tag)
 	}

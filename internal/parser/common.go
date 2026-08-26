@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/matcher"
 )
 
 func determineAuthor(user string, host string) string {
@@ -27,16 +28,16 @@ func looksLikeHost(segment string) bool {
 	return segment == "localhost" || strings.ContainsAny(segment, ".:")
 }
 
-var imageMatcher = data.NewNamedMatcher(regexp.MustCompile(`^(?:(?P<host>[^/\s]*)/)?(?:(?P<user>[^/\s]*)/)?(?P<name>[^\s/:@]*)(?::(?P<tag>[\w.-]*))?(?:@(?P<digest>sha\d{3}:[a-z0-9]*))?$`))
+var imageMatcher = matcher.NewNamedMatcher(regexp.MustCompile(`^(?:(?P<host>[^/\s]*)/)?(?:(?P<user>[^/\s]*)/)?(?P<name>[^\s/:@]*)(?::(?P<tag>[\w.-]*))?(?:@(?P<digest>sha\d{3}:[a-z0-9]*))?$`))
 
 func parseImageInfo(image string, customPattern *regexp.Regexp) (data.ImageInfo, error) {
-	matcher := imageMatcher
+	regexMatcher := imageMatcher
 
 	if customPattern != nil {
-		matcher = data.NewNamedMatcher(customPattern)
+		regexMatcher = matcher.NewNamedMatcher(customPattern)
 	}
 
-	match, ok := matcher.Match(image)
+	match, ok := regexMatcher.Match(image)
 	if !ok {
 		return data.ImageInfo{}, errors.New("image format did not match expected pattern")
 	}
