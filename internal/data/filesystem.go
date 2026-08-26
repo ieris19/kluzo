@@ -11,7 +11,6 @@ type FileEntry struct {
 	Name      string
 	Extension string
 	ParentDir string
-	Entry     os.DirEntry
 }
 
 func NewFileEntry(dir string, entry os.DirEntry) FileEntry {
@@ -20,7 +19,6 @@ func NewFileEntry(dir string, entry os.DirEntry) FileEntry {
 		Name:      entry.Name(),
 		Extension: path.Ext(entry.Name()),
 		ParentDir: dir,
-		Entry:     entry,
 	}
 }
 
