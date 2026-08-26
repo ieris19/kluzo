@@ -1,9 +1,10 @@
 set default-list := true
 
 repo-root := justfile_directory()
-go-cmd := repo-root / "cmd/kluzo"
+project-name := "kluzo"
+go-cmd := repo-root / "cmd" / project-name
 coverage-report := repo-root / "coverage.out"
-compiled-binary := repo-root / "kluzo"
+compiled-binary := repo-root / project-name
 development-config := repo-root / "config/dev.toml"
 
 # Delete build artifacts from the repository
@@ -25,6 +26,11 @@ build: clean
 [group: 'compiling']
 run: build
     {{compiled-binary}} -config {{development-config}}
+
+[group: 'compiling']
+install: build
+    mkdir -p $HOME/.local/bin
+    install --mode 0770 {{compiled-binary}} $HOME/.local/bin
 
 # Run the test suite with coverage
 [group: 'test']
