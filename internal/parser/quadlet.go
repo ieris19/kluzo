@@ -36,6 +36,19 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 		}
 	}()
 
+	semverEnabled := true
+	if raw := update["SemVer"]; raw != "" {
+		semverEnabled, err = strconv.ParseBool(raw)
+		if err != nil {
+			return data.ContainerDefinition{}, fmt.Errorf("invalid SemVer value for %s: %v", containerName, err)
+		}
+	}
+	if !semverEnabled {
+		// User has explicitly declared this tag untrackable - don't even
+		// attempt a parse, regardless of what a pattern might coincidentally match.
+		return data.ContainerDefinition{}, fmt.Errorf("flagged as non-semantic versioning: %w", semver.ErrNotSemver)
+	}
+
 	var imagePattern *matcher.NamedMatcher
 	if pattern := update["ImagePattern"]; pattern != "" {
 		re, err := regexp.Compile(pattern)
@@ -67,19 +80,6 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 		if err != nil {
 			return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %v", containerName, err)
 		}
-	}
-
-	semverEnabled := true
-	if raw := update["SemVer"]; raw != "" {
-		semverEnabled, err = strconv.ParseBool(raw)
-		if err != nil {
-			return data.ContainerDefinition{}, fmt.Errorf("invalid SemVer value for %s: %v", containerName, err)
-		}
-	}
-	if !semverEnabled {
-		// User has explicitly declared this tag untrackable - don't even
-		// attempt a parse, regardless of what a pattern might coincidentally match.
-		return data.ContainerDefinition{}, fmt.Errorf("flagged as non-semantic versioning: %w", semver.ErrNotSemver)
 	}
 
 	version, err := semver.Parse(imageInfo.Tag, tagPattern)

@@ -130,8 +130,9 @@ segment.
 - Versions must be valid semantic version tags. Digest-pinned and untagged
   images are treated as errors. Purely textual tags (e.g. `latest`) are skipped
   automatically rather than erroring; tags that mix digits and text but still
-  aren't valid semver (e.g. `rc1`) are treated as errors unless `SemVer=false`
-  is set (see "Customized behavior" above).
+  aren't valid semver (e.g. `rc1`) are treated as errors. `SemVer=false`
+  overrides all of the above and skips the container outright, whatever the
+  reference looks like (see "Customized behavior" above).
 - Channel suffixes (e.g. `-rc1`, `-alpine`, `-trixie`) are compared opaquely,
   they're not ordered against each other. This is a gotcha that isn't obvious in
   certain scenarios:
