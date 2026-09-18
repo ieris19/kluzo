@@ -1,3 +1,9 @@
+<!-- mirror-notice:start -->
+> [!NOTE]
+> **This repository is a mirror.** The canonical source lives at:
+> [git.ierislabs.dev/ieris19/kluzo](https://git.ierislabs.dev/ieris19/kluzo)
+<!-- mirror-notice:end -->
+
 # Kluzo
 
 A CLI tool that checks container tags in file definitions against the upstream
