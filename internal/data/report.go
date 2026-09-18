@@ -1,10 +1,14 @@
 package data
 
-import "fmt"
+import (
+	"fmt"
+
+	"git.ierislabs.dev/ieris19/kluzo/internal/semver"
+)
 
 type Update struct {
 	Definition    ContainerDefinition
-	LatestVersion SemanticVersion
+	LatestVersion semver.Version
 	Upgradeable   bool
 	// Pinned is true when no update is available within the version pin,
 	// but a newer version exists outside of it (e.g. a new major release).

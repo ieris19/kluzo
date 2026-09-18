@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/semver"
 )
 
 var SupportedExtensions []string = []string{".container"}
@@ -32,7 +33,7 @@ func ParseContainerFiles(file []data.FileEntry, report *data.UpdateReport) []dat
 				Stage: data.ParseStage,
 				Err:   err,
 			}
-			if errors.Is(err, data.ErrNotSemver) {
+			if errors.Is(err, semver.ErrNotSemver) {
 				report.Skipped = append(report.Skipped, cErr)
 			} else {
 				report.Errors = append(report.Errors, cErr)

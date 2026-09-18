@@ -25,9 +25,9 @@ kluzo [--config /path/to/config.toml]
 ## Configuration
 
 The configuration file is the source of many important settings, such as what
-directories to check for. The file is mandatory. Passing `--config` points
-the tool at an exact file that must exist. Without `--config`, the
-following paths are checked in order, and the first one that exists is used:
+directories to check for. The file is mandatory. Passing `--config` points the
+tool at an exact file that must exist. Without `--config`, the following paths
+are checked in order, and the first one that exists is used:
 
 1. `$XDG_CONFIG_HOME/kluzo/config.toml`, if `XDG_CONFIG_HOME` is set.
 2. `~/.config/kluzo/config.toml` otherwise.
@@ -53,11 +53,26 @@ certain behaviors to be altered on a per-image basis.
 As of right now, the following keys are respected under the `[X-Kluzo]` section
 in Quadlet files:
 
-- `TagPattern`: Must define 2 named groups `major` and `minor`; `patch` and
-  `extra` are also recognized but optional. The `extra` group will be used for
-  channel pinning. This only fixes tags that are oddly formatted or don't parse
-  with the standard regex, and still requires the images to be tagged using
-  semantic versioning.
+- `TagPattern`: defines the regex to match the tag as a semantic version.
+  Segments are named either by convention (`major`, `minor`, `patch`) or by
+  depth (`level1`, `level2`, … `levelN`). The two forms are interchangeable, but
+  one segment must not answer to both names at once. At least two segments are
+  required, and they must be contiguous, you can't define `level4` without
+  `level3`. The optional `extra` group is the "channel" and is used for channel
+  pinning. This only fixes tags that are oddly formatted or don't parse with the
+  standard regex, and still requires the images to be tagged using semantic
+  versioning.
+    - Depth is arbitrary. `level1` through `level5` is as valid as
+      `major`/`minor`/`patch`, and versions of differing depth are compared by
+      padding the shorter one with zeroes. You can also mix and match, as long
+      as you don't define the same level twice (e.g. `major` and
+      `level1` in the same pattern is invalid)
+    - A trailing segments can be optional, intermediate segments may not. If a
+      pattern lets `minor` go unmatched while `patch` matches, the tag is
+      ambiguous and is rejected rather than quietly read as a shorter version.
+    - Every segment group must capture digits only. Else it will fail to parse
+      any versions at runtime. The parser only rejects invalid patterns, but
+      cannot introspect the pattern to verify it matches only digits.
     - For example, an image tagged with dates can use
       `^(?P<major>\d+)-(?P<minor>\d+)(?:-(?P<patch>\d+))?$` and match
       `2026-08-18` as a semantic version. `18-08-2026` and `08-18-2026`
@@ -69,23 +84,32 @@ in Quadlet files:
   `host`, `user`, `name`, `tag`, `digest`. Only `name` is mandatory, but without
   `tag`, an error will be reported. Some repositories nest images in deeper or
   shallower URLs, so feel free to adjust to match your registries.
-- `VersionPin`: defines a cumulative pinning policy. The base strategy applies
-  at all times. The stricter policies accumulate on top of the previous levels.
-  In order, from looser to stricter, the following are the allowed policies:
-    - `channel` **(default)**: only the "channel" (`extra`) is pinned; any newer
-      version within that channel is considered an update. E.g. `1.0.0-alpine`
-      will only match other tags ending in `-alpine`.
-    - `major`: also restricts tags to the same major version, useful for
+- `VersionPin`: how many leading version segments a candidate tag must share.
+  The policies are cumulative: a deeper pin carries every restriction above it.
+  When a pin is the only thing holding a container back, that is, no update
+  exists within the pin but a newer version exists outside it, the report says
+  so rather than reporting the container as up to date. `freeze` does not check
+  against upstream at all, so it never performs this check. The names below are
+  the common depths, but any non-negative number is accepted.
+    - `channel` (`0`) **(default)**: only the "channel" (`extra`) is pinned; any
+      newer version within that channel is considered an update. E.g.
+      `1.0.0-alpine` will only match other tags ending in `-alpine`.
+    - `major` (`1`): also restricts tags to the same first segment, useful for
       projects where crossing a major version requires manual intervention.
-    - `minor`: also restricts tags to the same minor version, only patch
-      releases are suggested as possible updates.
+    - `minor` (`2`): also restricts tags to the same first two segments, only
+      patch releases are suggested as possible updates.
+    - Any deeper pin is written as a plain number. Pinning deeper than a tag
+      actually goes matches everything, since absent segments are padded with
+      zeroes.
     - `freeze`: the upstream registry is not checked at all; the container is
-      always reported as frozen at its current version.
-- `SemVer`: **(default `true`)** set to `false` to declare that this
-  container's tag carries no comparable version (e.g. `latest`). Tags with no
-  digits at all are already detected automatically; this is for the cases the
-  automatic check can't tell apart from a genuinely malformed version. Reported
-  as skipped, not an error.
+      always reported as frozen at its current version. This sits outside the
+      scale above; it is an exception, not a depth, and cannot be written as a
+      number.
+- `SemVer`: **(default `true`)** set to `false` to declare that this container's
+  tag carries no comparable version (e.g. `latest`). Tags with no digits at all
+  are already detected automatically; this is for the cases the automatic check
+  can't tell apart from a genuinely malformed version. Reported as skipped, not
+  an error.
 
 For `ImagePattern`, by convention, the sections are called `user` and `name`.
 However, OCI image names don't make such distinction. It's all a "repository" to
@@ -104,10 +128,10 @@ segment.
   API endpoint (e.g. `docker.io` is a hardcoded alias to
   `registry-1.docker.io`).
 - Versions must be valid semantic version tags. Digest-pinned and untagged
-  images are treated as errors. Purely textual tags (e.g. `latest`) are
-  skipped automatically rather than erroring; tags that mix digits and text
-  but still aren't valid semver (e.g. `rc1`) are treated as errors
-  unless `SemVer=false` is set (see "Customized behavior" above).
+  images are treated as errors. Purely textual tags (e.g. `latest`) are skipped
+  automatically rather than erroring; tags that mix digits and text but still
+  aren't valid semver (e.g. `rc1`) are treated as errors unless `SemVer=false`
+  is set (see "Customized behavior" above).
 - Channel suffixes (e.g. `-rc1`, `-alpine`, `-trixie`) are compared opaquely,
   they're not ordered against each other. This is a gotcha that isn't obvious in
   certain scenarios:

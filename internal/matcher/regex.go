@@ -19,6 +19,13 @@ func NewNamedMatcher(re *regexp.Regexp) *NamedMatcher {
 	return &NamedMatcher{re: re, index: index}
 }
 
+// Index reports which submatch the given group name occupies. Callers that
+// resolve a name once can then address it by position on every match.
+func (nm *NamedMatcher) Index(name string) (int, bool) {
+	i, ok := nm.index[name]
+	return i, ok
+}
+
 func (nm *NamedMatcher) Match(s string) (NamedMatch, bool) {
 	sub := nm.re.FindStringSubmatch(s)
 	if sub == nil {
@@ -37,4 +44,14 @@ func (nm NamedMatch) Get(name string) string {
 		return nm.sub[i]
 	}
 	return ""
+}
+
+// At returns the submatch at the given index. A negative index is the
+// conventional "group not in this pattern" and yields "". Any other
+// out-of-range index is a caller bug, and is left to panic as such.
+func (nm NamedMatch) At(i int) string {
+	if i < 0 {
+		return ""
+	}
+	return nm.sub[i]
 }

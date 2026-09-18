@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/semver"
 )
 
 func CheckUpdate(definition data.ContainerDefinition) (data.Update, error) {
@@ -34,28 +35,33 @@ func CheckUpdate(definition data.ContainerDefinition) (data.Update, error) {
 		Upgradeable:   cmp > 0,
 	}
 
-	if !update.Upgradeable && (definition.Pin == data.PinMajor || definition.Pin == data.PinMinor) {
+	// Would there be updates if the image was unpinned?
+	if !update.Upgradeable && definition.Pin > data.PinChannel {
 		unpinned := definition
 		unpinned.Pin = data.PinChannel
-		if unconstrainedLatest, err := selectLatestTag(tags, unpinned); err == nil {
-			if cmp, err := unconstrainedLatest.Compare(definition.Version); err == nil {
-				update.Pinned = cmp > 0
-			} else {
-				return data.Update{}, fmt.Errorf("comparing latest tag to current version: %v", err)
-			}
+		// Dropping the pin only widens the candidate set.
+		// Asserting assumptions anyway, should be unreachable errors
+		unconstrainedLatest, err := selectLatestTag(tags, unpinned)
+		if err != nil {
+			return data.Update{}, fmt.Errorf("selecting latest tag without the version pin: %v", err)
 		}
+		cmp, err := unconstrainedLatest.Compare(definition.Version)
+		if err != nil {
+			return data.Update{}, fmt.Errorf("comparing latest tag to current version: %v", err)
+		}
+		update.Pinned = cmp > 0
 	}
 
 	return update, nil
 }
 
-func selectLatestTag(tags []string, definition data.ContainerDefinition) (data.SemanticVersion, error) {
+func selectLatestTag(tags []string, definition data.ContainerDefinition) (semver.Version, error) {
 	if definition.Pin == data.PinFreeze {
-		return data.SemanticVersion{}, fmt.Errorf("cannot select a tag for a frozen container")
+		return semver.Version{}, fmt.Errorf("cannot select a tag for a frozen container")
 	}
 	current := definition.Version
 	tagPattern := definition.TagPattern
-	var candidates []data.SemanticVersion
+	var candidates []semver.Version
 	for _, tag := range tags {
 		if tagPattern == nil {
 			if current.Extra == "" {
@@ -66,23 +72,20 @@ func selectLatestTag(tags []string, definition data.ContainerDefinition) (data.S
 				continue
 			}
 		}
-		v, err := data.ParseSemanticVersion(tag, tagPattern)
+		v, err := semver.Parse(tag, tagPattern)
 		// A looser rule is always a subset of the restrictions in a stricter rule
 		if err != nil || v.Extra != current.Extra {
 			continue
 		}
-		if definition.Pin >= data.PinMajor && v.Major != current.Major {
-			continue
-		}
-		if definition.Pin >= data.PinMinor && (v.Minor != current.Minor) {
+		if !v.SharesPrefix(current, int(definition.Pin)) {
 			continue
 		}
 		candidates = append(candidates, v)
 	}
 	if len(candidates) == 0 {
-		return data.SemanticVersion{}, fmt.Errorf("no matching tags found")
+		return semver.Version{}, fmt.Errorf("no matching tags found")
 	}
-	slices.SortFunc(candidates, func(a, b data.SemanticVersion) int {
+	slices.SortFunc(candidates, func(a, b semver.Version) int {
 		c, err := a.Compare(b)
 		if err != nil {
 			// Should never error, since Extra should never differ at this point

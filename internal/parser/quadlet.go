@@ -8,6 +8,7 @@ import (
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
 	"git.ierislabs.dev/ieris19/kluzo/internal/matcher"
+	"git.ierislabs.dev/ieris19/kluzo/internal/semver"
 )
 
 func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR error) {
@@ -56,16 +57,16 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 		return data.ContainerDefinition{}, fmt.Errorf("no semver tag found for %s", containerName)
 	}
 
-	var tagPattern *matcher.NamedMatcher
+	var tagPattern *semver.TagPattern
 	if pattern := update["TagPattern"]; pattern != "" {
 		re, err := regexp.Compile(pattern)
 		if err != nil {
 			return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %v", containerName, err)
 		}
-		if err := data.ValidateTagPattern(re); err != nil {
+		tagPattern, err = semver.NewTagPattern(re)
+		if err != nil {
 			return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %v", containerName, err)
 		}
-		tagPattern = matcher.NewNamedMatcher(re)
 	}
 
 	semverEnabled := true
@@ -78,10 +79,10 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 	if !semverEnabled {
 		// User has explicitly declared this tag untrackable - don't even
 		// attempt a parse, regardless of what a pattern might coincidentally match.
-		return data.ContainerDefinition{}, fmt.Errorf("flagged as non-semantic versioning: %w", data.ErrNotSemver)
+		return data.ContainerDefinition{}, fmt.Errorf("flagged as non-semantic versioning: %w", semver.ErrNotSemver)
 	}
 
-	semver, err := data.ParseSemanticVersion(imageInfo.Tag, tagPattern)
+	version, err := semver.Parse(imageInfo.Tag, tagPattern)
 	if err != nil {
 		return data.ContainerDefinition{}, err
 	}
@@ -94,7 +95,7 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 	return data.ContainerDefinition{
 		Name:       containerName,
 		Image:      imageInfo,
-		Version:    semver,
+		Version:    version,
 		File:       file,
 		TagPattern: tagPattern,
 		Pin:        pin,

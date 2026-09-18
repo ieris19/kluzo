@@ -1,7 +1,11 @@
 package data
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
+// PinLevel is how many leading version segments a candidate tag must share
 type PinLevel int
 
 const (
@@ -10,9 +14,9 @@ const (
 	PinFreeze PinLevel = -1
 	// PinChannel is the default: only tags matching the current channel (Extra)
 	PinChannel PinLevel = 0
-	// PinMajor additionally only considers tags sharing the current Major version.
+	// PinMajor additionally only considers tags sharing the first segment.
 	PinMajor PinLevel = 1
-	// PinMinor additionally only considers tags sharing the current Major.Minor version.
+	// PinMinor additionally only considers tags sharing the first two segments.
 	PinMinor PinLevel = 2
 )
 
@@ -27,8 +31,12 @@ func (p PinLevel) String() string {
 	case PinMinor:
 		return "minor"
 	default:
-		return "invalid"
+		// Any other depth has no name, only its number
+		if p > 0 {
+			return strconv.Itoa(int(p))
+		}
 	}
+	return "invalid"
 }
 
 // Parses the PinLevel string into its corresponding enum value.
@@ -43,7 +51,12 @@ func ParsePinLevel(s string) (PinLevel, error) {
 		return PinMinor, nil
 	case "freeze":
 		return PinFreeze, nil
-	default:
+	}
+	// Depths past the named ones are spelled as a plain segment count.
+	depth, err := strconv.Atoi(s)
+	// Freeze is spelled "freeze", so we reject negative numbers.
+	if err != nil || depth < 0 {
 		return 0, fmt.Errorf("invalid pin level %q", s)
 	}
+	return PinLevel(depth), nil
 }
