@@ -90,60 +90,74 @@ func fetchToken(challenge bearerChallenge) (string, error) {
 	return "", fmt.Errorf("no token in auth response")
 }
 
-func fetchAuthorization(targetURL string, challenge bearerChallenge) (string, error) {
+// registrySession carries the bearer token across requests. Tokens are scoped
+// to a single repository, so a session covers one image's requests: the pages
+// of a tag listing share one token instead of re-running the 401 challenge.
+type registrySession struct {
+	token string
+}
+
+func (s *registrySession) fetchAuthorization(targetURL string, challenge bearerChallenge) (string, http.Header, error) {
 	token, err := fetchToken(challenge)
 	if err != nil {
-		return "", fmt.Errorf("failed to authenticate for %s: %v", targetURL, err)
+		return "", nil, fmt.Errorf("failed to authenticate for %s: %v", targetURL, err)
 	}
+	s.token = token
 	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to build request for %s: %v", targetURL, err)
+		return "", nil, fmt.Errorf("failed to build request for %s: %v", targetURL, err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to fetch URL %s: %v", targetURL, err)
+		return "", nil, fmt.Errorf("failed to fetch URL %s: %v", targetURL, err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("failed to fetch URL %s: status code %d", targetURL, resp.StatusCode)
+		return "", nil, fmt.Errorf("failed to fetch URL %s: status code %d", targetURL, resp.StatusCode)
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to read response body from %s: %v", targetURL, err)
+		return "", nil, fmt.Errorf("failed to read response body from %s: %v", targetURL, err)
 	}
-	return string(body), nil
+	return string(body), resp.Header, nil
 }
 
-func fetch(targetURL string) (string, error) {
+// Fetch the response body along with its headers
+func (s *registrySession) fetch(targetURL string) (string, http.Header, error) {
 	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to build request for %s: %v", targetURL, err)
+		return "", nil, fmt.Errorf("failed to build request for %s: %v", targetURL, err)
 	}
 	req.Header.Set("Accept", "application/json")
+	// Reuse the token from an earlier request in this session, if any
+	if s.token != "" {
+		req.Header.Set("Authorization", "Bearer "+s.token)
+	}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to fetch URL %s: %v", targetURL, err)
+		return "", nil, fmt.Errorf("failed to fetch URL %s: %v", targetURL, err)
 	}
 	defer resp.Body.Close()
 
+	// A cached token that has expired lands here too, and is replaced
 	if resp.StatusCode == http.StatusUnauthorized {
 		challenge, ok := parseBearerChallenge(resp.Header.Get("Www-Authenticate"))
 		if !ok {
-			return "", fmt.Errorf("failed to fetch URL %s: status code 401", targetURL)
+			return "", nil, fmt.Errorf("failed to fetch URL %s: status code 401", targetURL)
 		}
-		return fetchAuthorization(targetURL, challenge)
+		return s.fetchAuthorization(targetURL, challenge)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("failed to fetch URL %s: status code %d", targetURL, resp.StatusCode)
+		return "", nil, fmt.Errorf("failed to fetch URL %s: status code %d", targetURL, resp.StatusCode)
 	}
 	if ct := resp.Header.Get("Content-Type"); strings.Contains(ct, "text/html") {
-		return "", fmt.Errorf("failed to fetch URL %s: server returned HTML instead of JSON", targetURL)
+		return "", nil, fmt.Errorf("failed to fetch URL %s: server returned HTML instead of JSON", targetURL)
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to read response body from %s: %v", targetURL, err)
+		return "", nil, fmt.Errorf("failed to read response body from %s: %v", targetURL, err)
 	}
-	return string(body), nil
+	return string(body), resp.Header, nil
 }
