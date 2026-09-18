@@ -30,11 +30,11 @@ func looksLikeHost(segment string) bool {
 
 var imageMatcher = matcher.NewNamedMatcher(regexp.MustCompile(`^(?:(?P<host>[^/\s]*)/)?(?:(?P<user>[^/\s]*)/)?(?P<name>[^\s/:@]*)(?::(?P<tag>[\w.-]*))?(?:@(?P<digest>sha\d{3}:[a-z0-9]*))?$`))
 
-func parseImageInfo(image string, customPattern *regexp.Regexp) (data.ImageInfo, error) {
+func parseImageInfo(image string, customPattern *matcher.NamedMatcher) (data.ImageInfo, error) {
 	regexMatcher := imageMatcher
 
 	if customPattern != nil {
-		regexMatcher = matcher.NewNamedMatcher(customPattern)
+		regexMatcher = customPattern
 	}
 
 	match, ok := regexMatcher.Match(image)

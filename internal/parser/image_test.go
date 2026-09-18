@@ -6,6 +6,7 @@ import (
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/config"
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/matcher"
 )
 
 // Formats parseImageInfo is expected to accept without error
@@ -109,7 +110,8 @@ func TestParseImageInfoInvalidFormats(t *testing.T) {
 
 // A caller-supplied pattern (via config override)
 func TestParseImageInfoCustomPattern(t *testing.T) {
-	pattern := regexp.MustCompile(`^(?P<host>[^/\s]*)/(?P<user>.*)/(?P<name>[^\s/:@]*):(?P<tag>[\w.-]*)$`)
+	regexp := regexp.MustCompile(`^(?P<host>[^/\s]*)/(?P<user>.*)/(?P<name>[^\s/:@]*):(?P<tag>[\w.-]*)$`)
+	pattern := matcher.NewNamedMatcher(regexp)
 
 	t.Run("accepts custom pattern for parsing an image", func(t *testing.T) {
 		got, err := parseImageInfo("gcr.io/project/team/image:1.0", pattern)

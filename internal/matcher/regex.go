@@ -7,17 +7,19 @@ type NamedMatcher struct {
 	index map[string]int
 }
 
-func NewNamedMatcher(re *regexp.Regexp) NamedMatcher {
+// NewNamedMatcher builds the name index once; reuse the result across inputs
+// rather than rebuilding it per match.
+func NewNamedMatcher(re *regexp.Regexp) *NamedMatcher {
 	index := make(map[string]int)
 	for i, name := range re.SubexpNames() {
 		if name != "" {
 			index[name] = i
 		}
 	}
-	return NamedMatcher{re: re, index: index}
+	return &NamedMatcher{re: re, index: index}
 }
 
-func (nm NamedMatcher) Match(s string) (NamedMatch, bool) {
+func (nm *NamedMatcher) Match(s string) (NamedMatch, bool) {
 	sub := nm.re.FindStringSubmatch(s)
 	if sub == nil {
 		return NamedMatch{}, false

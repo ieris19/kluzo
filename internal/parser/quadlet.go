@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"git.ierislabs.dev/ieris19/kluzo/internal/data"
+	"git.ierislabs.dev/ieris19/kluzo/internal/matcher"
 )
 
 func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR error) {
@@ -34,7 +35,7 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 		}
 	}()
 
-	var imagePattern *regexp.Regexp
+	var imagePattern *matcher.NamedMatcher
 	if pattern := update["ImagePattern"]; pattern != "" {
 		re, err := regexp.Compile(pattern)
 		if err != nil {
@@ -43,7 +44,7 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 		if err := data.ValidateImagePattern(re); err != nil {
 			return data.ContainerDefinition{}, fmt.Errorf("invalid image pattern for %s: %v", containerName, err)
 		}
-		imagePattern = re
+		imagePattern = matcher.NewNamedMatcher(re)
 	}
 
 	imageInfo, err := parseImageInfo(container["Image"], imagePattern)
@@ -55,7 +56,7 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 		return data.ContainerDefinition{}, fmt.Errorf("no semver tag found for %s", containerName)
 	}
 
-	var tagPattern *regexp.Regexp
+	var tagPattern *matcher.NamedMatcher
 	if pattern := update["TagPattern"]; pattern != "" {
 		re, err := regexp.Compile(pattern)
 		if err != nil {
@@ -64,7 +65,7 @@ func parseQuadletFile(file data.FileEntry) (def data.ContainerDefinition, errR e
 		if err := data.ValidateTagPattern(re); err != nil {
 			return data.ContainerDefinition{}, fmt.Errorf("invalid tag pattern for %s: %v", containerName, err)
 		}
-		tagPattern = re
+		tagPattern = matcher.NewNamedMatcher(re)
 	}
 
 	semverEnabled := true
